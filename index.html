@@ -1,0 +1,1413 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0B7676">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Viagens">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Nossas Viagens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: app de uma coluna (máx 720px), capa grande no topo, abas fixas, cartões só onde separam objetos */
+:root{
+  --bg:#EEF3F4; --surface:#FFFFFF; --ink:#102530; --muted:#5A6D77; --line:#D8E2E6;
+  --accent:#0B7676; --accent-ink:#FFFFFF; --soft:#DDEFEE; --sun:#D9912B; --ok:#2C8A57; --bad:#B9412F;
+  --shadow:0 1px 2px rgba(16,37,48,.06),0 6px 18px rgba(16,37,48,.06);
+  --display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --body:"Figtree","Segoe UI",system-ui,-apple-system,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0B161B; --surface:#12212A; --ink:#E4EDF0; --muted:#94A7B0; --line:#223740;
+  --accent:#3DB5AC; --accent-ink:#04201F; --soft:#123236; --sun:#EDB45A; --ok:#55C08A; --bad:#E07A68;
+  --shadow:0 1px 2px rgba(0,0,0,.3); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B161B; --surface:#12212A; --ink:#E4EDF0; --muted:#94A7B0; --line:#223740;
+  --accent:#3DB5AC; --accent-ink:#04201F; --soft:#123236; --sun:#EDB45A; --ok:#55C08A; --bad:#E07A68;
+  --shadow:0 1px 2px rgba(0,0,0,.3); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+.muted{color:var(--muted)}
+.label{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- capa ---------- */
+.cover{position:relative;color:#fff;background:linear-gradient(155deg,#0E3346 0%,#0B6E70 55%,#D9912B 120%);background-size:cover;background-position:center;overflow:hidden}
+.cover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,20,28,.35),rgba(5,20,28,.15) 40%,rgba(5,20,28,.7))}
+.cover>*{position:relative;z-index:1}
+.cover .wrap{padding-block:14px 22px;display:flex;flex-direction:column;gap:14px}
+.cover-top{display:flex;justify-content:space-between}
+.round{width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.18);backdrop-filter:blur(6px);color:#fff;display:grid;place-items:center}
+.round svg{width:22px;height:22px}
+.cover h1{font-size:clamp(28px,7vw,38px);line-height:1.05;margin-top:36px}
+.cover-meta{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:14px;opacity:.95;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.18);font-weight:600;font-size:13px}
+
+/* ---------- abas ---------- */
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.tabs .wrap{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.tabs .wrap::-webkit-scrollbar{display:none}
+.tab{flex:1 0 auto;min-width:68px;border:0;background:none;padding:10px 8px 9px;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted);font-size:13px;font-weight:600;border-bottom:3px solid transparent}
+.tab svg{width:22px;height:22px}
+.tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+
+main{padding-block:18px 120px}
+.stack{display:flex;flex-direction:column;gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow);min-width:0}
+.card-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.card-h h2{font-size:18px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+
+/* ---------- campos ---------- */
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field>span{font-size:12.5px;font-weight:600;color:var(--muted)}
+input[type=text],input[type=date],input[type=time],input[type=tel],input[type=url],input:not([type]),textarea,select,input[inputmode]{
+  width:100%;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 12px;min-width:0}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);background:var(--surface)}
+textarea{resize:vertical;min-height:84px}
+textarea.notepad{min-height:260px;line-height:1.6;background:var(--surface);background-image:repeating-linear-gradient(transparent 0 calc(1.6em - 1px),var(--line) calc(1.6em - 1px) 1.6em);background-attachment:local;padding-top:6px;border-radius:12px}
+.btn{border:0;border-radius:12px;padding:11px 16px;font-weight:700;background:var(--accent);color:var(--accent-ink);display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn svg{width:18px;height:18px}
+.btn.ghost{background:var(--soft);color:var(--accent)}
+.btn.line{background:none;border:1px solid var(--line);color:var(--ink)}
+.btn.danger{background:var(--bad);color:#fff}
+.btn.small{padding:7px 12px;font-size:13.5px;border-radius:10px}
+.btn[disabled]{opacity:.55;cursor:default}
+.iconbtn{border:0;background:none;color:var(--muted);width:34px;height:34px;border-radius:8px;display:grid;place-items:center;flex:none}
+.iconbtn:hover{background:var(--bg);color:var(--bad)}
+.iconbtn svg{width:18px;height:18px}
+
+/* ---------- listas de checagem ---------- */
+.checks{display:flex;flex-direction:column}
+.check{display:flex;align-items:center;gap:10px;padding:4px 0;border-bottom:1px dashed var(--line)}
+.check:last-child{border-bottom:0}
+.check input[type=checkbox]{width:22px;height:22px;accent-color:var(--accent);flex:none}
+.check input[type=text]{border-color:transparent;background:none;padding:8px 4px}
+.check input[type=text]:focus{border-color:var(--accent)}
+.check.done input[type=text]{text-decoration:line-through;color:var(--muted)}
+.addrow{border:1px dashed var(--line);background:none;border-radius:10px;padding:9px 12px;color:var(--accent);font-weight:600;display:flex;align-items:center;gap:8px;width:100%;margin-top:8px}
+.addrow svg{width:18px;height:18px}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .3s}
+.bar.over>i{background:var(--bad)}
+
+/* ---------- início ---------- */
+.home-hero{padding-block:28px 8px}
+.home-hero h1{font-size:clamp(30px,8vw,44px);line-height:1.02}
+.home-hero p{margin:8px 0 0;color:var(--muted)}
+.trip-card{display:block;width:100%;text-align:left;border:0;padding:0;border-radius:20px;overflow:hidden;box-shadow:var(--shadow);background:var(--surface)}
+.trip-card .cover .wrap{padding:16px;min-height:170px;justify-content:flex-end}
+.trip-card .cover h1{margin:0;font-size:28px}
+.trip-card .foot{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;font-size:14px}
+.newtrip{border:2px dashed var(--line);background:none;border-radius:20px;padding:22px;display:flex;align-items:center;justify-content:center;gap:10px;color:var(--accent);font-weight:700;font-size:16px;width:100%}
+.newtrip svg{width:24px;height:24px}
+
+/* ---------- roteiro ---------- */
+.day-card{display:grid;grid-template-columns:92px 1fr auto;gap:14px;align-items:center;width:100%;border:1px solid var(--line);background:var(--surface);border-radius:16px;padding:10px;text-align:left;box-shadow:var(--shadow)}
+.day-thumb{width:92px;height:92px;border-radius:12px;background:linear-gradient(155deg,#0E3346,#0B6E70 60%,#D9912B 130%);background-size:cover;background-position:center;color:#fff;display:flex;flex-direction:column;justify-content:flex-end;padding:8px;font-family:var(--display);line-height:1}
+.day-thumb b{font-size:26px}
+.day-thumb small{font-size:11px;letter-spacing:.06em;text-transform:uppercase;opacity:.9}
+.day-card h3{font-size:17px;font-family:var(--body);font-weight:700}
+.day-card .muted{font-size:13.5px}
+.day-card .price{font-weight:700;color:var(--accent);font-size:14px}
+.act{border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px;background:var(--bg)}
+.act .full{grid-column:1/-1}
+.act-foot{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.paid{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;color:var(--muted)}
+.paid input{width:20px;height:20px;accent-color:var(--ok)}
+.maplink{font-size:13.5px;font-weight:600;color:var(--accent);text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+.maplink svg{width:16px;height:16px}
+
+/* ---------- linha do tempo ---------- */
+.tl{display:flex;flex-direction:column}
+.slot{display:grid;grid-template-columns:62px 1fr;gap:12px;align-items:start}
+.slot-t{text-align:right;padding-top:10px;font-variant-numeric:tabular-nums;line-height:1.2}
+.slot-t b{display:block;font-size:16px}
+.slot-t small{color:var(--muted);font-size:12.5px}
+.slot-c{border-left:3px solid var(--accent);background:var(--bg);border-radius:0 12px 12px 0;padding:10px 12px;min-width:0}
+.slot-c b{display:block}
+.slot-c span{color:var(--muted);font-size:13.5px}
+.slot.start .slot-c{border-left-color:var(--muted);background:none;padding-block:6px}
+.leg{display:grid;grid-template-columns:62px 1fr;gap:12px}
+.leg-line{justify-self:end;width:2px;margin-right:14px;background:repeating-linear-gradient(var(--line) 0 4px,transparent 4px 8px);min-height:44px}
+.leg-info{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;font-size:13.5px;color:var(--muted);padding-block:8px}
+.leg-info svg{width:16px;height:16px;vertical-align:-3px}
+.tag{font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px}
+.tag.ok{background:var(--soft);color:var(--ok)}
+.tag.bad{background:var(--bad);color:#fff}
+.times{display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:8px}
+@media (max-width:420px){.times{grid-template-columns:1fr 1fr}.times .field:last-child{grid-column:1/-1}}
+
+/* ---------- modo viagem, tema, estrelas ---------- */
+.now{background:var(--accent);color:var(--accent-ink);border:0}
+.now .label,.now .muted{color:inherit;opacity:.85}
+.now h2{font-size:20px;margin-top:2px}
+.now p{margin:4px 0 0}
+.now a.maplink{color:inherit;text-decoration:underline}
+.now-grid{display:flex;flex-direction:column;gap:12px}
+.btn.onacc{background:none;border:1.5px solid currentColor;color:inherit;margin-top:10px}
+.themebtn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;height:40px;padding:0 12px;display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:13.5px}
+.themebtn svg{width:18px;height:18px}
+.home-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.stars{display:inline-flex;gap:2px}
+.stars button{border:0;background:none;padding:2px;color:var(--line)}
+.stars button.on{color:var(--sun)}
+.stars svg{width:22px;height:22px}
+
+/* ---------- malas ---------- */
+.bag-name{font-family:var(--display);font-size:20px;font-weight:700;border-color:transparent!important;background:none!important;padding:4px 6px!important}
+.bag-name:focus{border-color:var(--accent)!important}
+.block{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}
+.block-h{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.block-h input{font-weight:700;border-color:transparent;background:none;padding:6px 4px}
+.block-h input:focus{border-color:var(--accent)}
+.bag-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+
+/* ---------- plano B e backup ---------- */
+details.planb>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer}
+details.planb>summary::-webkit-details-marker{display:none}
+details.planb>summary h2{font-size:18px}
+details.planb .chev{transition:transform .2s;color:var(--muted);display:grid}
+details.planb .chev svg{width:20px;height:20px;transform:rotate(-90deg)}
+details.planb[open] .chev{transform:rotate(180deg)}
+.pb-body{margin-top:12px;display:flex;flex-direction:column;gap:10px}
+.pb{border:1px solid var(--line);border-radius:14px;padding:12px;background:var(--bg);display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pb .full{grid-column:1/-1}
+.bk-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.bk-row:last-child{border-bottom:0}
+.sheet .btn{width:100%}
+.sheet .actions .btn{width:auto}
+.home-tools{display:flex;gap:8px}
+
+/* ---------- edição livre ---------- */
+.fl{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.xs{border:0;background:none;color:var(--muted);width:26px;height:26px;border-radius:6px;display:grid;place-items:center;opacity:.65;flex:none;padding:0}
+.xs:hover,.xs:focus-visible{opacity:1;color:var(--bad);background:var(--bg)}
+.xs svg{width:14px;height:14px}
+.kv{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;margin-top:8px}
+.sec-r{display:flex;align-items:center;gap:6px;flex:none}
+.card-h h2{min-width:0}
+.iconbtn.more:hover{color:var(--accent)}
+.addsec{justify-content:center;margin-top:0}
+.typegrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.typeopt{border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:10px;text-align:left;display:flex;flex-direction:column;gap:2px;color:var(--ink)}
+.typeopt small{color:var(--muted);font-size:12px}
+.typeopt[aria-pressed="true"]{border-color:var(--accent);background:var(--soft)}
+.grp-name{font-family:var(--display);font-size:18px;font-weight:700;border-color:transparent!important;background:none!important;padding:4px 6px!important;min-width:0}
+.grp-name:focus{border-color:var(--accent)!important}
+.tabchk{display:flex;flex-wrap:wrap;gap:6px 14px}
+.tabchk label{display:inline-flex;gap:6px;align-items:center;font-size:14px}
+.tabchk input{width:18px;height:18px;accent-color:var(--accent)}
+
+/* ---------- pagantes ---------- */
+.exp .full{grid-column:1/-1}
+.payers{border-top:1px dashed var(--line);padding-top:8px;display:flex;flex-direction:column;gap:6px}
+.payers-h{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:12.5px}
+.payer{display:grid;grid-template-columns:1fr 104px auto;gap:6px;align-items:center}
+.payer input{padding:8px 10px}
+.payer-actions{display:flex;gap:14px}
+.linkbtn{border:0;background:none;padding:2px 0;color:var(--accent);font-weight:600;font-size:13.5px;display:inline-flex;align-items:center;gap:4px;cursor:pointer}
+.linkbtn svg{width:15px;height:15px}
+.pay-row{border-bottom:1px solid var(--line)}
+.pay-row>summary{list-style:none;display:flex;justify-content:space-between;gap:10px;padding:10px 0;cursor:pointer}
+.pay-row>summary::-webkit-details-marker{display:none}
+.pay-row[open]>summary{color:var(--accent)}
+
+/* ---------- exportar ---------- */
+.xgs{display:flex;flex-direction:column}
+.xg{padding:10px 0;border-bottom:1px solid var(--line)}
+.xg:last-child{border-bottom:0}
+.xg-h{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.xg-h label,.xg-c label{display:flex;align-items:center;gap:8px}
+.xg input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);flex:none}
+.xg.off b{color:var(--muted)}
+.xdet>summary{list-style:none;margin:6px 0 0 28px}
+.xdet>summary::-webkit-details-marker{display:none}
+.xg-c{display:flex;flex-direction:column;gap:8px;margin:8px 0 0 28px;font-size:14.5px}
+.xopt{font-weight:600;color:var(--accent)}
+.doc-wrap{overflow-x:auto;background:#E9EEF0;border-radius:12px;padding:12px}
+.pdf-src{position:fixed;left:-10000px;top:0;width:740px}
+/* o documento é sempre papel branco, nos dois temas */
+.docv{background:#FFFFFF;color:#13232C;font-family:var(--body);font-size:13.5px;line-height:1.5;padding:28px 30px;border-radius:6px;max-width:720px;margin:0 auto}
+.docv h1{font-family:var(--display);font-size:26px;line-height:1.1;margin:4px 0 6px;color:#0B5F60}
+.dv-eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#6A7B84;font-weight:700}
+.dv-top{border-bottom:2px solid #0B7676;padding-bottom:12px;margin-bottom:14px}
+.dv-to,.dv-dates{margin:0;color:#3E525C}
+.dv-msg{background:#E6F3F2;border-radius:8px;padding:10px 12px;margin-bottom:14px}
+.dv-sec{margin:0 0 14px;break-inside:auto}
+.dv-sec h2{font-family:var(--display);font-size:16px;color:#0B5F60;margin:0 0 6px;padding-bottom:3px;border-bottom:1px solid #D5E0E4}
+.dv-sec h3{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#6A7B84;margin:10px 0 4px}
+.dv-sec h4{font-size:14px;margin:10px 0 3px;color:#13232C}
+.dv-kv{display:flex;justify-content:space-between;gap:16px;padding:3px 0;border-bottom:1px dotted #DCE4E8}
+.dv-kv span{color:#52646D}
+.dv-kv b{text-align:right;font-weight:600}
+.dv-li{display:flex;gap:8px;padding:2px 0}
+.dv-li i{font-style:normal;color:#0B7676;flex:none;width:14px}
+.docv p{margin:4px 0}
+.dv-empty{color:#6A7B84;text-align:center;padding:20px 0}
+.dv-foot{margin-top:18px!important;font-size:11px;color:#8A9AA2;text-align:center}
+
+/* ---------- arquivos ---------- */
+.files{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.file{position:relative;aspect-ratio:1;max-width:100%;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--bg)}
+.file a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;height:100%;color:var(--ink);text-decoration:none;font-size:12px;padding:6px;text-align:center;word-break:break-word}
+.file img{width:100%;height:100%;object-fit:cover}
+.file a svg{width:28px;height:28px;color:var(--accent)}
+.file .x{position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;display:grid;place-items:center}
+.file .x svg{width:14px;height:14px}
+.upl{border:1.5px dashed var(--line);border-radius:12px;aspect-ratio:1;max-width:100%;background:none;color:var(--accent);font-weight:600;font-size:12.5px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.upl svg{width:24px;height:24px}
+
+/* ---------- clima ---------- */
+.wx{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(78px,1fr);gap:8px;overflow-x:auto;padding-bottom:4px}
+.wx-d{border-radius:12px;background:var(--bg);padding:10px 6px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
+.wx-d svg{width:30px;height:30px;color:var(--sun)}
+.wx-d .t{font-weight:700}
+.wx-d small{font-size:11.5px;color:var(--muted)}
+.wx-empty{opacity:.7}
+.wx-empty .dash{font-size:22px;color:var(--muted);line-height:30px}
+
+/* ---------- orçamento ---------- */
+.money-big{font-family:var(--display);font-size:34px;line-height:1}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.kpi{background:var(--bg);border-radius:12px;padding:10px}
+.kpi b{display:block;font-size:15px}
+.kpi span{font-size:12px;color:var(--muted)}
+.row-money{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14.5px}
+.row-money:last-child{border-bottom:0}
+.exp{display:grid;grid-template-columns:1fr 110px;gap:8px;padding:10px 0;border-bottom:1px dashed var(--line)}
+.exp .sub{grid-column:1/-1;display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.exp select{width:auto;padding:6px 8px}
+
+/* ---------- ideias ---------- */
+.idea{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
+.idea:last-child{border-bottom:0}
+.idea-pin{width:38px;height:38px;border-radius:10px;background:var(--soft);color:var(--accent);display:grid;place-items:center;flex:none}
+.idea-pin svg{width:20px;height:20px}
+.idea b{display:block}
+.idea select{margin-top:6px;width:auto;padding:6px 8px;font-size:13.5px}
+
+/* ---------- folha (modal) ---------- */
+.sheet-bg{position:fixed;inset:0;z-index:30;background:rgba(5,15,20,.5);display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);width:100%;max-width:560px;border-radius:22px 22px 0 0;padding:18px max(18px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px));max-height:92vh;overflow:auto;display:flex;flex-direction:column;gap:12px;animation:up .22s ease}
+.sheet h2{font-size:22px}
+.sheet .actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:6px}
+@media (min-width:640px){.sheet-bg{align-items:center}.sheet{border-radius:22px}}
+@keyframes up{from{transform:translateY(30px);opacity:.4}to{transform:none;opacity:1}}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:40;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;font-size:14px;max-width:90vw;box-shadow:var(--shadow)}
+.note{font-size:13px;color:var(--muted);background:var(--soft);border-radius:10px;padding:8px 12px}
+.empty{text-align:center;padding:28px 12px;color:var(--muted)}
+.spin{width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .8s linear infinite;display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:420px){.day-card{grid-template-columns:76px 1fr auto}.day-thumb{width:76px;height:76px}.kpis{grid-template-columns:1fr 1fr 1fr}.money-big{font-size:28px}}
+</style>
+
+</head>
+<body>
+<script>
+/* ===== Versão GitHub Pages: guarda tudo neste aparelho (IndexedDB) ===== */
+(function(){
+  if(window.claude)return;
+  const DBN='nossas-viagens-local';
+  const idb=new Promise((res,rej)=>{const r=indexedDB.open(DBN,1);r.onupgradeneeded=()=>{const d=r.result;d.createObjectStore('docs');d.createObjectStore('assets')};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+  const put=(store,key,val)=>idb.then(d=>new Promise((res,rej)=>{const t=d.transaction(store,'readwrite');t.objectStore(store).put(val,key);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)}));
+  const del=(store,key)=>idb.then(d=>new Promise((res,rej)=>{const t=d.transaction(store,'readwrite');t.objectStore(store).delete(key);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)}));
+  const each=(store,fn)=>idb.then(d=>new Promise((res,rej)=>{const t=d.transaction(store,'readonly');const rq=t.objectStore(store).openCursor();rq.onsuccess=()=>{const c=rq.result;if(c){fn(c.key,c.value);c.continue()}else res()};rq.onerror=()=>rej(rq.error)}));
+  const clone=v=>v==null?v:JSON.parse(JSON.stringify(v));
+  const mem={},subs={},urls={};
+  const ready=each('docs',(k,v)=>{const i=k.lastIndexOf('/');(mem[k.slice(0,i)]=mem[k.slice(0,i)]||{})[k.slice(i+1)]=v});
+  const assetsReady=each('assets',(k,v)=>{if(v&&v.blob)urls[k]=URL.createObjectURL(v.blob)});
+  const snap=(col,docs)=>{docs=docs||Object.keys(mem[col]||{}).map(id=>({id,exists:true,data:()=>clone(mem[col][id]),metadata:{fromCache:false,hasPendingWrites:false}}));return{docs,size:docs.length,empty:!docs.length,metadata:{},docChanges:()=>[]}};
+  const emit=col=>(subs[col]||[]).forEach(fn=>{try{fn(snap(col))}catch(e){console.error(e)}});
+  function docRef(col,id){return{id,path:col+'/'+id,
+    get:async()=>{await ready;const v=(mem[col]||{})[id];return{id,exists:v!==undefined,data:()=>clone(v),metadata:{}}},
+    set:async data=>{await ready;(mem[col]=mem[col]||{})[id]=clone(data);await put('docs',col+'/'+id,clone(data));emit(col)},
+    update:async data=>{await ready;const cur=(mem[col]||{})[id]||{};const nv=Object.assign(clone(cur),clone(data));(mem[col]=mem[col]||{})[id]=nv;await put('docs',col+'/'+id,nv);emit(col)},
+    delete:async()=>{await ready;if(mem[col])delete mem[col][id];await del('docs',col+'/'+id);emit(col)}}}
+  function query(col,o){return{
+    orderBy:(f,dir)=>query(col,Object.assign({},o,{f,dir})),limit:n=>query(col,Object.assign({},o,{n})),where:()=>query(col,o),
+    get:async()=>{await ready;let d=snap(col).docs;if(o.f)d.sort((a,b)=>{const x=a.data()[o.f],y=b.data()[o.f];return(x>y?1:x<y?-1:0)*(o.dir==='desc'?-1:1)});if(o.n)d=d.slice(0,o.n);return snap(col,d)},
+    onSnapshot:(next)=>{(subs[col]=subs[col]||[]).push(next);ready.then(()=>next(snap(col)));return()=>{subs[col]=(subs[col]||[]).filter(f=>f!==next)}}}}
+  const db={collection:col=>Object.assign(query(col,{}),{path:col,doc:id=>docRef(col,id||('d'+Date.now().toString(36))),add:async data=>{const r=docRef(col,'d'+Date.now().toString(36)+Math.random().toString(36).slice(2,6));await r.set(data);return r}}),doc:p=>{const i=p.lastIndexOf('/');return docRef(p.slice(0,i),p.slice(i+1))}};
+  const assets={
+    upload:async blob=>{const id='a'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);await put('assets',id,{blob,type:blob.type});urls[id]=URL.createObjectURL(blob);return{id,url:'asset:'+id,sizeBytes:blob.size,contentType:blob.type}},
+    delete:async id=>{await del('assets',id);if(urls[id]){URL.revokeObjectURL(urls[id]);delete urls[id]}return{deleted:true}},
+    list:async()=>({assets:Object.keys(urls).map(id=>({id,url:'asset:'+id})),usage:{}})};
+  const downloads={save:async({filename,data})=>{const blob=data instanceof Blob?data:new Blob([data]);const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);return{status:'saved'}}};
+  window.__assetUrl=u=>u&&String(u).startsWith('asset:')?(urls[String(u).slice(6)]||''):u;
+  window.__localAssets={
+    exportFor:async trips=>{await assetsReady;const ids=[...new Set((JSON.stringify(trips).match(/asset:[a-z0-9]+/g)||[]).map(s=>s.slice(6)))],out={};
+      for(const id of ids){const u=urls[id];if(!u)continue;const b=await (await fetch(u)).blob();out[id]=await new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)})}return out},
+    importAll:async files=>{for(const id of Object.keys(files||{})){try{const b=await (await fetch(files[id])).blob();await put('assets',id,{blob:b,type:b.type});urls[id]=URL.createObjectURL(b)}catch(e){}}}};
+  try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+  window.claude={local:true,use:async name=>{try{if(name==='db'){await ready;return db}if(name==='assets'){await assetsReady;return assets}if(name==='downloads')return downloads}catch(e){console.error(e)}return null}};
+})();
+if('serviceWorker' in navigator&&location.protocol==='https:')window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js',{scope:'./'}).catch(()=>{}));
+</script>
+<div id="app"></div>
+<div id="sheet"></div>
+<div id="toast" class="toast" hidden></div>
+<input type="file" id="filepick" hidden multiple>
+<input type="file" id="bkpick" hidden accept=".json,application/json">
+
+<script>
+(function(){
+/* ================= ícones ================= */
+const I={
+ back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
+ gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
+ plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+ x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>',
+ trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>',
+ pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+ cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>',
+ info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg>',
+ money:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v20M17 6.5c-1-1.2-2.8-2-5-2-2.8 0-4.5 1.4-4.5 3.3 0 4.4 10 2.2 10 7 0 2-2 3.4-5 3.4-2.4 0-4.4-.9-5.5-2.3"/></svg>',
+ bag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="14" rx="2"/><path d="M9 7V4h6v3M9 11v6M15 11v6"/></svg>',
+ doc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>',
+ note:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/></svg>',
+ img:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg>',
+ up:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>',
+ spark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg>',
+ sun:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+ partly:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v1.5M3.5 8H5M4.8 4.8l1 1M11.2 4.8l-1 1"/><path d="M5.6 10.4A3.5 3.5 0 1 1 11.4 7"/><path d="M9 20h8.5a3.5 3.5 0 0 0 .4-7 5 5 0 0 0-9.7 1.2A3 3 0 0 0 9 20z"/></svg>',
+ cloud:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19h10.5a4 4 0 0 0 .5-8 6 6 0 0 0-11.6 1.5A3.3 3.3 0 0 0 7 19z"/></svg>',
+ rain:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 15h10.5a4 4 0 0 0 .5-8 6 6 0 0 0-11.6 1.5A3.3 3.3 0 0 0 7 15z"/><path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3"/></svg>',
+ bed:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18V7M3 14h18v4M21 14v-2a3 3 0 0 0-3-3h-7v5"/><circle cx="7" cy="11" r="1.5"/></svg>',
+ walk:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2"/><path d="M10 21l2-6-3-3 1-4 4 3 3 1M9 12l-2 3"/></svg>',
+ bus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="15" rx="2"/><path d="M5 11h14M8 18v3M16 18v3"/><circle cx="8.5" cy="14.5" r=".5"/><circle cx="15.5" cy="14.5" r=".5"/></svg>',
+ moon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>',
+ auto:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg>',
+ star:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z"/></svg>',
+ fork:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v8M4 3v5a3 3 0 0 0 6 0V3M7 11v10M17 21V3c-2 1-3.5 3.5-3.5 7s1.5 4 3.5 4"/></svg>',
+ door:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 7-7"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg>',
+ dots:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>',
+ car:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16h14M6 16l1.5-5h9L18 16M5 16v3M19 16v3"/><circle cx="8" cy="16" r="1"/><circle cx="16" cy="16" r="1"/></svg>'
+};
+
+/* ================= utilidades ================= */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const brl=n=>(Number(n)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const parseD=s=>{if(!s)return null;const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const fmt=(s,o)=>{const d=parseD(s);return d?d.toLocaleDateString('pt-BR',o||{day:'numeric',month:'short'}):''};
+const fmtLong=s=>fmt(s,{weekday:'short',day:'numeric',month:'short'});
+const range=(a,b)=>{const out=[];let d=parseD(a),e=parseD(b);if(!d||!e||e<d)return out;while(d<=e&&out.length<60){out.push(iso(d));d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1)}return out};
+const daysTo=s=>{const d=parseD(s);if(!d)return null;const t=new Date();t.setHours(0,0,0,0);return Math.round((d-t)/864e5)};
+const num=v=>{const n=parseFloat(String(v).replace(/\./g,'').replace(',','.'));return isNaN(n)?0:n};
+const numIn=v=>{if(typeof v==='number')return v;const s=String(v).trim();if(/,/.test(s)||/^\d{1,3}(\.\d{3})+$/.test(s))return num(s);const n=parseFloat(s);return isNaN(n)?0:n};
+const maps=q=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);
+const uid=()=>Math.random().toString(36).slice(2,9);
+function toast(msg){const t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2600)}
+
+/* ================= modelo ================= */
+const MALA=[
+ ['Roupas',['Camisetas','Shorts / bermudas','Roupa de banho / biquíni','Saída de praia','Roupa para a noite','Pijama','Roupa íntima','Casaco leve']],
+ ['Calçados',['Chinelo','Tênis','Sandália']],
+ ['Higiene',['Escova e pasta de dente','Shampoo e condicionador','Desodorante','Protetor solar','Pós-sol','Repelente']],
+ ['Saúde',['Remédios de uso contínuo','Analgésico / antialérgico','Curativos']],
+ ['Eletrônicos',['Carregador de celular','Power bank','Fone de ouvido']],
+ ['Praia e passeio',['Óculos de sol','Boné ou chapéu','Toalha de praia','Bolsa de praia','Garrafinha de água']]
+];
+const DOCS=['RG ou CNH de todos','Carteirinha do plano de saúde / SUS','Comprovante da hospedagem','Passagens ou voucher do transporte','Cartões e um pouco de dinheiro','Documento do carro (se for de carro)'];
+const TODOS=['Reservar a hospedagem','Definir o transporte','Comprar ingressos dos passeios','Separar os documentos','Arrumar a mala'];
+const CATS=['Hospedagem','Transporte','Alimentação','Passeios','Compras','Outros'];
+const SAIDA=[
+ ['Antes de sair de casa',['Desligar o registro do gás','Tirar aparelhos da tomada','Fechar janelas e trancar portas','Esvaziar o lixo','Regar as plantas ou pedir para alguém regar','Deixar o pet com alguém de confiança','Tirar da geladeira o que estraga','Avisar um vizinho ou familiar da viagem']],
+ ['Conferir que pegou',['Celular de todos','Carregadores e power bank','Carteira e cartões','Documentos de todos','Chaves de casa e do carro','Óculos de grau e de sol','Remédios','Ingressos e reservas no celular','Contar as malas e bolsas']],
+ ['Antes de sair da hospedagem',['Carregadores esquecidos na tomada','Cofre do quarto','Gavetas e armário','Banheiro: escovas, cremes, maquiagem','Roupa no varal ou no box','Embaixo das camas e sofá','Devolver a chave e fazer o check-out']]
+];
+const TRANSP=['Combustível (ida e volta)','Pedágios','Estacionamento','Uber/táxi na cidade'];
+const MEALS=['Café da manhã','Almoço','Lanche','Jantar'];
+
+function newDay(date){return{date,title:'',place:'',cover:null,acts:[],food:[],planB:[],look:'',lookPhotos:[],files:[],notes:''}}
+function normalize(t){
+  t=Object.assign({name:'',city:'',origin:'',start:'',end:'',people:'',cover:null,budget:0,notes:'',rules:'',
+    hotel:{},transport:{},todos:null,reminders:[],contacts:[],ideas:[],expenses:[],mala:null,docs:null,files:[],weather:null,days:[]},t);
+  normLayout(t);
+  if(!Array.isArray(t.exports))t.exports=[];
+  t.exports.forEach(x=>{if(!Array.isArray(x.off))x.off=[];if(!x.v){x.off=x.off.filter(k=>!['opt:prices','budget','payers'].includes(k));x.v=2}});
+  if(!Array.isArray(t.payers)){const set=new Set();(t.people||'').split(/,| e /).map(x=>x.trim()).filter(Boolean).forEach(n=>set.add(n));
+    (t.days||[]).forEach(d=>[...(d.acts||[]),...(d.food||[])].forEach(x=>(x.payers||[]).forEach(p=>{if(p.name)set.add(p.name)})));(t.expenses||[]).forEach(x=>(x.payers||[]).forEach(p=>{if(p.name)set.add(p.name)}));t.payers=[...set]}
+  t.hotel=Object.assign({name:'',address:'',checkin:'',checkout:'',code:'',phone:'',notes:''},t.hotel);
+  t.transport=Object.assign({kind:'',go:'',back:'',code:'',notes:''},t.transport);
+  if(!Array.isArray(t.todos))t.todos=TODOS.map(x=>({t:x,done:false}));
+  if(!Array.isArray(t.mala))t.mala=MALA.flatMap(([c,items])=>items.map(x=>({cat:c,t:x,done:false})));
+  if(!Array.isArray(t.docs))t.docs=DOCS.map(x=>({t:x,done:false}));
+  if(!Array.isArray(t.bags)){
+    const used=Array.isArray(t.mala)&&t.mala.some(x=>x.done);
+    t.bags=used?[{name:'Mala',blocks:[...new Set(t.mala.map(x=>x.cat))].map(c=>({name:c,items:t.mala.filter(x=>x.cat===c).map(x=>({t:x.t,done:x.done}))}))}]:[];
+  }
+  t.bags.forEach(b=>{if(!Array.isArray(b.blocks))b.blocks=[];b.blocks.forEach(k=>{if(!Array.isArray(k.items))k.items=[]})});
+  if(!Array.isArray(t.saida))t.saida=SAIDA.flatMap(([c,items])=>items.map(x=>({cat:c,t:x,done:false})));
+  ['reminders','contacts','ideas','expenses','files'].forEach(k=>{if(!Array.isArray(t[k]))t[k]=[]});
+  if(!t.transpInit){TRANSP.forEach(n=>t.expenses.push({name:n,cat:'Transporte',cost:0,paid:false}));t.transpInit=true}
+  const old=Array.isArray(t.days)?t.days:[];
+  t.days=range(t.start,t.end).filter(x=>!t.skip.includes(x)).map(d=>Object.assign(newDay(d),old.find(x=>x&&x.date===d)||{}));
+  t.days.forEach(d=>{['acts','food','planB','lookPhotos','files'].forEach(k=>{if(!Array.isArray(d[k]))d[k]=[]});if(!d.cx||typeof d.cx!=='object')d.cx={}});
+  return t;
+}
+const TPL={
+  todo:()=>({t:'',done:false}), reminder:()=>({t:'',done:false}), doc:()=>({t:'',done:false}),
+  contact:()=>({name:'',phone:''}), act:()=>({time:'',end:'',name:'',place:'',cost:0,paid:false,notes:'',travel:0,mode:''}),
+  expense:()=>({name:'',cat:'Hospedagem',cost:0,paid:false}), texp:()=>({name:'',cat:'Transporte',cost:0,paid:false}),
+  pb:()=>({name:'',place:'',notes:''}), kv:()=>({k:'',v:''}), idea:()=>({name:'',desc:'',cost:''}),
+  food:()=>({meal:'Almoço',name:'',dish:'',cost:0,went:false,rating:0,review:''}), mala:el=>({cat:el.dataset.cat||'Outros',t:'',done:false})
+};
+
+/* ================= tema ================= */
+const TH='viagens-theme',hostTheme=document.documentElement.getAttribute('data-theme');
+function getTheme(){try{return localStorage.getItem(TH)||'auto'}catch(e){return'auto'}}
+function applyTheme(m){const r=document.documentElement;if(m==='auto'){if(hostTheme)r.setAttribute('data-theme',hostTheme);else r.removeAttribute('data-theme')}else r.setAttribute('data-theme',m);try{localStorage.setItem(TH,m)}catch(e){}}
+const THEME_LBL={auto:'Automático',light:'Claro',dark:'Escuro'},THEME_IC={auto:'auto',light:'sun',dark:'moon'};
+function themeBtn(round){const m=getTheme();return round?`<button class="round" data-act="theme" aria-label="Tema: ${THEME_LBL[m]}">${I[THEME_IC[m]]}</button>`:`<button class="themebtn" data-act="theme" aria-label="Trocar tema">${I[THEME_IC[m]]} ${THEME_LBL[m]}</button>`}
+applyTheme(getTheme());
+
+/* ================= modo viagem ================= */
+const today=()=>S.simDate||iso(new Date());
+const nowM=()=>{const n=new Date();return n.getHours()*60+n.getMinutes()};
+const tripToday=t=>t.days.findIndex(d=>d.date===today());
+
+/* ================= estado e armazenamento ================= */
+const S={openB:new Set(),trips:{},view:{screen:'home'},db:null,assets:null,sample:null,mode:'loading',dirty:new Set(),saving:new Set(),timers:{},busy:{}};
+const LS='viagens-v1';
+function lsLoad(){try{return JSON.parse(localStorage.getItem(LS)||'{}')||{}}catch(e){return{}}}
+function lsSave(){try{localStorage.setItem(LS,JSON.stringify(S.trips))}catch(e){}}
+const trip=()=>S.trips[S.view.tripId];
+function clean(t){const o=JSON.parse(JSON.stringify(t));delete o.id;return o}
+function save(id){
+  id=id||S.view.tripId;if(!id)return;S.dirty.add(id);autoSnap();clearTimeout(S.timers[id]);
+  S.timers[id]=setTimeout(()=>flush(id),700);
+}
+function flush(id){
+  if(S.mode!=='db'){lsSave();S.dirty.delete(id);return}
+  if(S.saving.has(id)){S.timers[id]=setTimeout(()=>flush(id),400);return}
+  const t=S.trips[id];if(!t){S.dirty.delete(id);return}
+  S.saving.add(id);S.dirty.delete(id);
+  S.db.collection('trips').doc(id).set(clean(t)).catch(e=>{toast('Não consegui salvar agora. Tente de novo em instantes.');S.dirty.add(id)})
+   .finally(()=>{S.saving.delete(id);if(S.dirty.has(id))S.timers[id]=setTimeout(()=>flush(id),1500)});
+}
+function getPath(o,p){return p.split('.').reduce((a,k)=>a==null?a:a[k],o)}
+function setPath(o,p,v){const ks=p.split('.');const last=ks.pop();const tgt=ks.reduce((a,k)=>a[k],o);tgt[last]=v}
+
+/* ================= render ================= */
+let pendingRender=false;
+function busyInput(){const a=document.activeElement;return a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.type!=='checkbox'&&a.type!=='file'}
+function softRender(){if(busyInput()){pendingRender=true;return}render()}
+document.addEventListener('focusout',()=>setTimeout(()=>{if(pendingRender&&!busyInput()){pendingRender=false;render()}},50));
+
+const au=u=>window.__assetUrl?window.__assetUrl(u):u;
+const HAS_AI=!!(window.claude&&!window.claude.local);
+function coverStyle(c){return c&&c.url&&au(c.url)?` style="background-image:url('${esc(au(c.url))}')"`:''}
+function inp(path,val,ph,extra){return `<input type="text" data-bind="${path}" value="${esc(val)}" placeholder="${esc(ph||'')}" ${extra||''}>`}
+function fld(label,path,val,ph,extra){return `<label class="field"><span>${label}</span>${inp(path,val,ph,extra)}</label>`}
+function area(path,val,ph,cls){return `<textarea data-bind="${path}" placeholder="${esc(ph||'')}" class="${cls||''}">${esc(val)}</textarea>`}
+
+function render(){
+  const v=S.view,app=$('#app');
+  if(v.screen!=='home'&&!trip()){S.view={screen:'home'}}
+  const scr=S.view.screen;
+  app.innerHTML=(scr==='home'?rHome():scr==='day'?rDay():scr==='export'?rExport():rTrip())+(trip()?`<datalist id="dl-people">${peopleNames(trip()).map(n=>`<option value="${esc(n)}">`).join('')}</datalist>`:'');
+  if(S.focusLast){const els=app.querySelectorAll(S.focusLast);const el=els[els.length-1];if(el)el.focus();S.focusLast=null}
+}
+
+function rHome(){
+  const list=Object.values(S.trips).sort((a,b)=>(a.start||'').localeCompare(b.start||''));
+  const cards=list.map(t=>{
+    const n=daysTo(t.start),end=daysTo(t.end);
+    const when=n==null?'':n>0?`Faltam ${n} dia${n>1?'s':''}`:end>=0?'Acontecendo agora':'Viagem concluída';
+    const done=t.todos.filter(x=>x.done).length;
+    return `<button class="trip-card" data-act="open" data-id="${esc(t.id)}">
+      <div class="cover"${coverStyle(t.cover)}><div class="wrap"><span class="chip">${esc(when)}</span><h1>${esc(t.name||t.city||'Viagem')}</h1>
+      <div class="cover-meta"><span>${esc(fmt(t.start))} – ${esc(fmt(t.end))}</span>${t.people?`<span>${esc(t.people)}</span>`:''}</div></div></div>
+      <div class="foot"><span class="muted">${t.days.length} dias de roteiro · ${t.todos.length?`${done}/${t.todos.length} pendências feitas`:'sem pendências'}</span><b style="color:var(--accent)">Abrir</b></div>
+    </button>`}).join('');
+  let banner='';
+  if(S.mode==='local')banner=`<section class="card" style="border-color:var(--sun)"><h2 style="font-size:18px">As viagens salvas não aparecem aqui</h2>
+    <p style="margin:6px 0 0">Esta página foi aberta fora do Claude${S.dbErr?` (erro: ${esc(S.dbErr)})`:''}, então ela não consegue ler o armazenamento da conta. Abra pelo Claude: no app ou em claude.ai, pelo cartão do artifact "Nossas Viagens".</p>
+    <p class="muted" style="margin:6px 0 0;font-size:13.5px">O que for criado aqui fica salvo só neste aparelho. Depois, ao abrir pelo Claude neste mesmo aparelho, aparece um botão para enviar para a conta.</p></section>`;
+  else if(S.mode==='db'){const loc=lsLoad(),extra=Object.keys(loc).filter(id=>!S.trips[id]);
+    if(extra.length)banner=`<section class="card"><h2 style="font-size:18px">Encontrei ${extra.length} viagem(ns) salva(s) só neste aparelho</h2>
+      <p class="muted" style="margin:6px 0 10px">Foram criadas com a página aberta fora do Claude. Quer juntar com as da conta?</p><button class="btn small" data-act="pushLocal">Enviar para a conta</button></section>`}
+  return `<div class="wrap"><header class="home-hero"><div class="home-top"><p class="label">Planejador de viagens</p><span class="home-tools"><button class="themebtn" data-act="backup">${I.up} Backup</button>${themeBtn(false)}</span></div><h1>Nossas viagens</h1>
+    <p>Roteiro, mala, documentos e gastos de cada viagem em um lugar só.</p></header>
+    <main class="stack">${banner}
+    ${S.mode==='loading'?`<div class="empty"><span class="spin"></span> Carregando suas viagens salvas…</div>`:cards||`<div class="empty">Nenhuma viagem ainda. Toque em <b>Nova viagem</b> para começar.</div>`}
+    <button class="newtrip" data-act="newTrip">${I.plus} Nova viagem</button></main></div>`;
+}
+
+const TABS=[['info','Info',I.info],['roteiro','Roteiro',I.cal],['orcamento','Orçamento',I.money],['mala','Mala',I.bag],['conferir','Conferir',I.door],['docs','Docs',I.doc],['notas','Notas',I.note]];
+function rTrip(){
+  const t=trip(),vis=TABS.filter(([k])=>!t.tabsOff.includes(k)),list=vis.length?vis:TABS;
+  const tab=list.find(x=>x[0]===S.view.tab)?S.view.tab:list[0][0];S.view.tab=tab;
+  const n=daysTo(t.start),end=daysTo(t.end);
+  const when=n==null?'':n>0?`Faltam ${n} dia${n>1?'s':''}`:end>=0?'Boa viagem!':'Concluída';
+  const body={info:rInfo,roteiro:rRoteiro,orcamento:rOrc,mala:rMala,conferir:rConferir,docs:rDocs,notas:rNotas}[tab](t);
+  return `<div class="cover"${coverStyle(t.cover)}><div class="wrap">
+    <div class="cover-top"><button class="round" data-act="home" aria-label="Voltar às viagens">${I.back}</button><span style="display:flex;gap:8px">${themeBtn(true)}<button class="round" data-act="editTrip" aria-label="Editar viagem">${I.gear}</button></span></div>
+    <h1>${esc(t.name||t.city)}</h1>
+    <div class="cover-meta"><span>${I.cal.replace('<svg','<svg width="16" height="16"')} ${esc(fmt(t.start))} – ${esc(fmt(t.end))}</span><span class="chip">${esc(when)}</span>${t.people?`<span>${esc(t.people)}</span>`:''}</div>
+    ${t.origin?`<div class="cover-meta" style="margin-top:-6px"><span>${esc(t.origin)} → ${esc(t.hotel.name||t.hotel.address||t.city||t.name)}</span></div>`:''}
+  </div></div>
+  <nav class="tabs"><div class="wrap" role="tablist">${list.map(([k,l,ic])=>`<button class="tab" role="tab" aria-selected="${k===tab}" data-act="tab" data-tab="${k}">${ic}${l}</button>`).join('')}</div></nav>
+  <main class="wrap stack">${body}</main>`;
+}
+
+function checklist(path,arr,ph,tpl){
+  return `<div class="checks">${arr.map((x,i)=>`<div class="check ${x.done?'done':''}"><input type="checkbox" data-bind="${path}.${i}.done" ${x.done?'checked':''} aria-label="Concluído">
+   ${inp(`${path}.${i}.t`,x.t,ph,`data-k="${path}"`)}<button class="iconbtn" data-act="del" data-path="${path}.${i}" aria-label="Remover">${I.x}</button></div>`).join('')}</div>
+   <button class="addrow" data-act="add" data-path="${path}" data-tpl="${tpl}">${I.plus} Adicionar</button>`;
+}
+function progress(arr){const d=arr.filter(x=>x.done).length,p=arr.length?Math.round(d/arr.length*100):0;return{d,p,txt:`${d}/${arr.length}`}}
+
+function dayCost(d){return d.acts.reduce((s,a)=>s+numIn(a.cost),0)+d.food.reduce((s,f)=>s+numIn(f.cost),0)}
+function filesGrid(path,arr,label){
+  return `<div class="files">${arr.map((f,i)=>`<div class="file">${/^image\//.test(f.type||'')?`<a href="${esc(au(f.url))}" target="_blank" rel="noopener"><img src="${esc(au(f.url))}" alt="${esc(f.name)}" loading="lazy"></a>`:`<a href="${esc(au(f.url))}" target="_blank" rel="noopener">${I.doc}<span>${esc(f.name)}</span></a>`}
+    <button class="x" data-act="rmFile" data-path="${path}.${i}" aria-label="Remover arquivo">${I.x}</button></div>`).join('')}
+    <button class="upl" data-act="pick" data-target="${path}" ${S.busy.up?'disabled':''}>${S.busy.up===path?'<span class="spin"></span>Enviando':I.up+(label||'Anexar')}</button></div>`;
+}
+
+const toMin=s=>{if(!s||!/^\d{1,2}:\d{2}/.test(s))return null;const[h,m]=s.split(':').map(Number);return h*60+m};
+const dur=m=>{m=Math.round(m);const h=Math.floor(m/60),r=m%60;return h?(r?`${h}h ${r}min`:`${h}h`):`${r} min`};
+const MODES=['Carro','Uber/táxi','A pé','Ônibus'];
+const modeIcon=m=>m==='A pé'?I.walk:m==='Ônibus'?I.bus:I.car;
+const dirUrl=(a,b,m,city)=>'https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(a+' '+city)+'&destination='+encodeURIComponent(b+' '+city)+'&travelmode='+(m==='A pé'?'walking':m==='Ônibus'?'transit':'driving');
+function timed(d){return d.acts.map((a,j)=>({a,j})).filter(x=>toMin(x.a.time)!=null).sort((x,y)=>toMin(x.a.time)-toMin(y.a.time))}
+function legsOf(t,d){
+  const list=timed(d),home=t.hotel.address||t.hotel.name;let prev=home||null;
+  return list.map(x=>{const place=x.a.place||x.a.name;const leg={from:prev,to:place,x};prev=place;return leg}).filter(l=>l.from&&l.to);
+}
+function rTimeline(t,d){
+  const list=timed(d);
+  if(!list.length)return `<p class="muted" style="margin:0">Coloque horário nos passeios abaixo para montar a agenda do dia.</p>`;
+  const home=t.hotel.address||t.hotel.name,city=t.city||'';
+  let prevPlace=home||null,prevEnd=null,out='';
+  if(home)out+=`<div class="slot start"><div class="slot-t"><small>saída</small></div><div class="slot-c"><b>${esc(t.hotel.name||'Hospedagem')}</b></div></div>`;
+  list.forEach(({a},k)=>{
+    const place=a.place||a.name,start=toMin(a.time),tr=numIn(a.travel);
+    if(prevPlace&&place){
+      let tag='';
+      if(prevEnd!=null){const gap=start-prevEnd;
+        if(gap<0)tag=`<span class="tag bad">horários se sobrepõem</span>`;
+        else if(tr&&tr>gap)tag=`<span class="tag bad">faltam ${dur(tr-gap)}</span>`;
+        else if(gap-tr>=30)tag=`<span class="tag ok">${dur(gap-tr)} livres</span>`;}
+      out+=`<div class="leg"><span class="leg-line"></span><div class="leg-info">${modeIcon(a.mode)} ${tr?`~${dur(tr)}${a.mode?' de '+esc(a.mode.toLowerCase()):''}`:'deslocamento não informado'}
+        <a class="maplink" href="${dirUrl(prevPlace,place,a.mode,city)}" target="_blank" rel="noopener">Rota</a> ${tag}</div></div>`;
+    }else if(k>0)out+=`<div class="leg"><span class="leg-line" style="min-height:16px"></span><span></span></div>`;
+    const c=numIn(a.cost);
+    out+=`<div class="slot"><div class="slot-t"><b>${esc(a.time)}</b>${a.end?`<small>até ${esc(a.end)}</small>`:''}</div>
+      <div class="slot-c"><b>${esc(a.name||'Sem nome')}</b>${a.place&&a.place!==a.name?`<span>${esc(a.place)}</span>`:''}${c?`<span> · ${brl(c)}</span>`:''}</div></div>`;
+    prevPlace=place||prevPlace;prevEnd=toMin(a.end);
+  });
+  const sem=d.acts.length-list.length;
+  if(sem)out+=`<p class="muted" style="font-size:13px;margin:10px 0 0">${sem} item(s) sem horário não aparecem na agenda.</p>`;
+  return `<div class="tl">${out}</div>`;
+}
+async function askTravel(){
+  const t=trip(),d=t.days[S.view.day],legs=legsOf(t,d);
+  if(!legs.length){toast('Coloque horário e local em pelo menos um passeio.');return}
+  const s=await getSample();if(!s){toast('A estimativa por IA não está disponível aqui. Use o botão Rota.');return}
+  S.busy.tr=true;render();
+  try{
+    const r=await s.json(`Cidade: ${t.city||t.name}, Brasil. Estime o tempo típico de deslocamento de cada trecho abaixo, na ordem:
+${legs.map((l,i)=>`${i+1}) De "${l.from}" até "${l.to}"${l.x.a.mode?` (modo escolhido: ${l.x.a.mode})`:''}`).join('\n')}
+Se o modo não foi escolhido, use "A pé" quando der menos de 15 minutos andando; senão "Carro". Responda SOMENTE com JSON: [{"minutos":número,"modo":"Carro|Uber/táxi|A pé|Ônibus"}], uma entrada por trecho, na mesma ordem.`,{modelTier:'quick'});
+    if(Array.isArray(r)){legs.forEach((l,i)=>{const x=r[i];if(x&&+x.minutos>0){l.x.a.travel=Math.round(+x.minutos);if(!l.x.a.mode&&MODES.includes(x.modo))l.x.a.mode=x.modo}});save();toast('Deslocamentos estimados. Confira no botão Rota.')}
+    else toast('Não veio uma resposta válida. Tente de novo.');
+  }catch(e){toast(e&&e.code==='rate_limited'?'Muitos pedidos seguidos. Espere um pouco.':'Não consegui estimar agora.')}
+  S.busy.tr=false;softRender();
+}
+function nowCard(t,i){
+  const d=t.days[i],list=timed(d),nm=nowM(),home=t.hotel.address||t.hotel.name;
+  const head=`<span class="label">Hoje · Dia ${i+1}</span>`;
+  if(!list.length)return `<section class="card now">${head}<h2>Nenhum horário marcado hoje</h2><p>Coloque horário nos passeios para ver o próximo compromisso aqui.</p></section>`;
+  const k=list.findIndex(x=>toMin(x.a.time)>nm);
+  const cur=list.find(x=>toMin(x.a.time)<=nm&&toMin(x.a.end)!=null&&nm<toMin(x.a.end));
+  let out='';
+  if(cur)out+=`<div><span class="label">Agora</span><h2>${esc(cur.a.name||'Atividade')}</h2><p>até ${esc(cur.a.end)}</p></div>`;
+  if(k>=0){const nx=list[k].a,mins=toMin(nx.time)-nm,tr=numIn(nx.travel),from=k>0?(list[k-1].a.place||list[k-1].a.name):home,to=nx.place||nx.name;
+    out+=`<div><span class="label">Próximo · em ${dur(mins)}</span><h2>${esc(nx.time)} · ${esc(nx.name||'Atividade')}</h2>
+      ${tr?`<p><b>${mins-tr>0?`Sair em ${dur(mins-tr)}`:'Sair agora'}</b> · ~${dur(tr)} de deslocamento</p>`:''}
+      ${from&&to?`<p><a class="maplink" href="${dirUrl(from,to,nx.mode,t.city||'')}" target="_blank" rel="noopener">Abrir rota no Maps</a></p>`:''}</div>`}
+  if(!out)out=`<h2>Programação de hoje concluída</h2><p>Bom descanso!</p>`;
+  return `<section class="card now">${cur||k>=0?head:''}<div class="now-grid">${out}</div></section>`;
+}
+setInterval(()=>{const el=document.querySelector('[data-calc="now"]');if(el&&S.view.screen==='day'&&trip())el.innerHTML=nowCard(trip(),S.view.day)},60000);
+function refreshTimeline(){const el=document.querySelector('[data-calc="timeline"]');if(el&&S.view.screen==='day')el.innerHTML=rTimeline(trip(),trip().days[S.view.day]);const nw=document.querySelector('[data-calc="now"]');if(nw&&S.view.screen==='day')nw.innerHTML=nowCard(trip(),S.view.day)}
+
+function budgetData(t){
+  const acts=t.days.flatMap((d,i)=>d.acts.map(a=>({name:a.name||'Passeio',cat:'Passeios',cost:numIn(a.cost),paid:a.paid,day:i})));
+  const food=t.days.flatMap(d=>d.food.map(f=>({name:f.name||'Refeição',cat:'Alimentação',cost:numIn(f.cost),paid:f.went})));
+  const ex=t.expenses.map(e=>({name:e.name,cat:e.cat||'Outros',cost:numIn(e.cost),paid:e.paid}));
+  const all=acts.concat(food,ex);
+  const total=all.reduce((s,x)=>s+x.cost,0),paid=all.filter(x=>x.paid).reduce((s,x)=>s+x.cost,0);
+  const byCat={};all.forEach(x=>{byCat[x.cat]=(byCat[x.cat]||0)+x.cost});
+  return{total,paid,byCat};
+}
+/* ================= seções editáveis ================= */
+const BUILT={
+ info:[['modo','Modo viagem'],['todo','O que falta fazer'],['hotel','Onde vamos ficar'],['transp','Como vamos'],['clima','Clima da viagem'],['lembr','Lembretes importantes'],['lugares','Lugares para visitar'],['regras','Regras e combinados'],['contatos','Contatos úteis']],
+ day:[['agora','Agora'],['base','Título e local'],['agenda','Agenda do dia'],['prog','Programação'],['planb','Plano B'],['comer','Onde comer'],['look','Look do dia'],['arquivos','Fotos e documentos do dia'],['notas','Bloco de notas']],
+ orcamento:[['resumo','Total previsto'],['pagantes','Quem paga'],['limite','Limite de gastos'],['pordia','Passeios e refeições por dia'],['outros','Outros gastos'],['cats','Categorias de gasto']],
+ mala:[], conferir:[['topo','Não esquecer']],
+ docs:[['docs','Documentos para levar'],['arquivos','Arquivos da viagem']],
+ notas:[['notas','Bloco de notas']]
+};
+const SEC_TYPES=[['lista','Lista de tarefas','Itens para marcar'],['texto','Texto livre','Como um bloco de notas'],['campos','Campos','Nome e valor, ex.: Senha do Wi-Fi'],['anexos','Fotos e arquivos','Imagens e PDFs']];
+const PROTECTED_CATS=['Passeios','Alimentação','Transporte'];
+const defTitle=(scope,id)=>{const b=(BUILT[scope]||[]).find(x=>x[0]===id);return b?b[1]:''};
+function normLayout(t){
+  t.layout=t.layout&&typeof t.layout==='object'?t.layout:{};
+  Object.keys(BUILT).forEach(sc=>{
+    const L=Array.isArray(t.layout[sc])?t.layout[sc]:[];
+    BUILT[sc].forEach(([id],k)=>{if(!L.find(e=>e.id===id))L.splice(Math.min(k,L.length),0,{id,title:'',hidden:false})});
+    t.layout[sc]=L.filter(e=>e&&e.id);
+  });
+  if(!t.cx||typeof t.cx!=='object')t.cx={};
+  ['hiddenF','tabsOff','skip'].forEach(k=>{if(!Array.isArray(t[k]))t[k]=[]});
+  if(!Array.isArray(t.cats)||!t.cats.length)t.cats=CATS.slice();
+  PROTECTED_CATS.forEach(c=>{if(!t.cats.includes(c))t.cats.push(c)});
+}
+const cxDefault=type=>type==='texto'?'':[];
+function cxPath(scope,e){return scope==='day'?`days.${S.view.day}.cx.${e.id}`:`cx.${e.id}`}
+function ensureCx(t,path,type){if(getPath(t,path)===undefined)setPath(t,path,cxDefault(type));return getPath(t,path)}
+function hidF(t,key){return t.hiddenF.includes(key)}
+/* campo que pode ser escondido */
+function fldX(t,key,label,path,val,ph,extra){
+  if(hidF(t,key))return '';
+  return `<label class="field"><span class="fl">${label}<button class="xs" data-act="hideF" data-key="${key}" aria-label="Excluir campo ${esc(label)}">${I.x}</button></span>${inp(path,val,ph,extra)}</label>`;
+}
+function areaX(t,key,label,path,val,ph){
+  if(hidF(t,key))return '';
+  return `<label class="field"><span class="fl">${label}<button class="xs" data-act="hideF" data-key="${key}" aria-label="Excluir campo ${esc(label)}">${I.x}</button></span>${area(path,val,ph)}</label>`;
+}
+/* campos extras (nome + valor) */
+function kvList(t,path){
+  const arr=ensureCx(t,path,'campos');
+  return `${arr.map((x,i)=>`<div class="kv">${inp(`${path}.${i}.k`,x.k,'Nome do campo',`data-k="${path}" aria-label="Nome do campo"`)}${inp(`${path}.${i}.v`,x.v,'Valor','aria-label="Valor"')}<button class="iconbtn" data-act="del" data-path="${path}.${i}" aria-label="Remover campo">${I.x}</button></div>`).join('')}
+   <button class="addrow" data-act="add" data-path="${path}" data-tpl="kv">${I.plus} Adicionar campo</button>`;
+}
+function menuBtn(scope,id){return `<button class="iconbtn more" data-act="secMenu" data-scope="${scope}" data-id="${id}" aria-label="Opções da seção">${I.dots}</button>`}
+function sec(scope,e,right,body,o){
+  o=o||{};const title=e.title||defTitle(scope,e.id)||'Seção';
+  return `<section class="card ${o.cls||''}" data-sec="${e.id}"><div class="card-h"><h2>${o.icon||''}${esc(title)}</h2><span class="sec-r">${right||''}${menuBtn(scope,e.id)}</span></div>${body}</section>`;
+}
+function rCustom(t,scope,e){
+  const path=cxPath(scope,e),val=ensureCx(t,path,e.type);
+  const body=e.type==='texto'?area(path,val,'Escreva aqui…','notepad')
+    :e.type==='campos'?kvList(t,path)
+    :e.type==='anexos'?filesGrid(path,val,'Anexar')
+    :checklist(path,val,'Item','todo');
+  const right=e.type==='lista'&&val.length?`<span class="muted num">${progress(val).txt}</span>`:'';
+  return sec(scope,e,right,body);
+}
+function layoutRender(t,scope,map,d){
+  return t.layout[scope].filter(e=>!e.hidden&&(!e.only||(d&&e.only===d.date))).map(e=>{
+    if(e.type)return rCustom(t,scope,e);
+    const f=map[e.id];return f?f(e):'';
+  }).join('')+`<button class="addrow addsec" data-act="addSec" data-scope="${scope}">${I.plus} Adicionar seção</button>`;
+}
+
+/* ================= Info ================= */
+function rInfo(t){
+  const S_='info';
+  const map={
+    modo(e){const ti=tripToday(t);
+      if(ti>=0)return `<section class="card now"><div class="card-h"><span class="label">${esc(e.title||'Modo viagem')}</span>${menuBtn(S_,e.id)}</div><h2>Hoje é o Dia ${ti+1}${t.days[ti].title?' · '+esc(t.days[ti].title):''}</h2>
+        <button class="btn small onacc" data-act="openDay" data-i="${ti}">Abrir o dia de hoje</button></section>`;
+      if(daysTo(t.start)>0&&t.days.length)return sec(S_,e,`<button class="btn small ghost" data-act="sim">Ver como fica</button>`,
+        `<p class="muted" style="margin:0">A partir de ${esc(fmt(t.start))}, o app abre direto no dia de hoje, mostrando o próximo compromisso e a hora de sair.</p>`);
+      return '';},
+    todo(e){const pr=progress(t.todos);return sec(S_,e,`<span class="muted num">${pr.txt}</span>`,`<div class="bar" style="margin-bottom:10px"><i style="width:${pr.p}%"></i></div>${checklist('todos',t.todos,'Ex.: comprar ingresso do Unipraias','todo')}`)},
+    hotel(e){return sec(S_,e,t.hotel.address||t.hotel.name?`<a class="maplink" href="${maps(t.hotel.address||t.hotel.name+' '+t.city)}" target="_blank" rel="noopener">${I.pin} Mapa</a>`:'',
+      `<div class="stack" style="gap:10px">${fldX(t,'hotel:name','Hotel / casa','hotel.name',t.hotel.name,'Nome da hospedagem')}${fldX(t,'hotel:address','Endereço','hotel.address',t.hotel.address,'Rua, número, bairro')}
+       <div class="grid2">${fldX(t,'hotel:checkin','Check-in','hotel.checkin',t.hotel.checkin,'Ex.: 05/12 às 14h')}${fldX(t,'hotel:checkout','Check-out','hotel.checkout',t.hotel.checkout,'Ex.: 10/12 às 11h')}
+       ${fldX(t,'hotel:code','Código da reserva','hotel.code',t.hotel.code,'')}${fldX(t,'hotel:phone','Telefone','hotel.phone',t.hotel.phone,'','inputmode="tel"')}</div>
+       ${areaX(t,'hotel:notes','Observações','hotel.notes',t.hotel.notes,'Café da manhã incluso? Estacionamento? Wi-Fi?')}
+       <div>${kvList(t,'cx.hotel_f')}</div></div>`,{icon:I.bed.replace('<svg','<svg width="20" height="20" style="vertical-align:-3px;color:var(--accent);margin-right:6px"')})},
+    transp(e){const tx=t.expenses.map((x,i)=>({e:x,i})).filter(x=>x.e.cat==='Transporte'),tot=tx.reduce((s,x)=>s+numIn(x.e.cost),0);
+      return sec(S_,e,'',`<div class="stack" style="gap:10px">${fldX(t,'transp:origin','Origem (de onde vamos sair)','origin',t.origin,'Cidade ou endereço de casa')}
+       ${t.origin&&!hidF(t,'transp:origin')?`<a class="maplink" href="https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(t.origin)}&destination=${encodeURIComponent((t.hotel.address||t.hotel.name||'')+' '+(t.city||t.name))}" target="_blank" rel="noopener">${I.pin} Rota de ${esc(t.origin)} até a hospedagem</a>`:''}
+       ${fldX(t,'transp:kind','Transporte','transport.kind',t.transport.kind,'Carro, avião, ônibus…')}
+       <div class="grid2">${fldX(t,'transp:go','Ida','transport.go',t.transport.go,'Data, horário, voo')}${fldX(t,'transp:back','Volta','transport.back',t.transport.back,'Data, horário, voo')}</div>
+       ${fldX(t,'transp:code','Localizador / reserva','transport.code',t.transport.code,'')}
+       <div>${kvList(t,'cx.transp_f')}</div></div>
+       ${hidF(t,'transp:gastos')?'':`<div class="card-h" style="margin:16px 0 0"><span class="label">Gastos com transporte</span><span class="sec-r"><b class="num" data-calc="txtot" style="color:var(--accent)">${brl(tot)}</b><button class="xs" data-act="hideF" data-key="transp:gastos" aria-label="Excluir gastos com transporte">${I.x}</button></span></div>
+       ${tx.map(({e:x,i})=>`<div class="exp">${inp(`expenses.${i}.name`,x.name,'Ex.: pedágio da BR-101',`data-k="expenses"`)}${inp(`expenses.${i}.cost`,x.cost||'','0,00','inputmode="decimal" data-type="num"')}
+         <div class="sub"><label class="paid"><input type="checkbox" data-bind="expenses.${i}.paid" ${x.paid?'checked':''}> Pago</label><button class="iconbtn" data-act="del" data-path="expenses.${i}" aria-label="Remover">${I.trash}</button></div>${payersUI(`expenses.${i}`,x)}</div>`).join('')}
+       <button class="addrow" data-act="add" data-path="expenses" data-tpl="texp">${I.plus} Adicionar gasto de transporte</button>
+       <p class="muted" style="font-size:13px;margin:8px 0 0">Tudo o que entrar aqui soma no Orçamento.</p>`}`,{icon:I.car.replace('<svg','<svg width="20" height="20" style="vertical-align:-3px;color:var(--accent);margin-right:6px"')})},
+    clima(e){const wx=t.weather,by={};(wx&&Array.isArray(wx.dias)?wx.dias:[]).forEach(x=>{if(x&&x.data)by[x.data]=x});
+      const n=t.days.filter(d=>by[d.date]).length,at=wx&&wx.at?new Date(wx.at):null;
+      const cells=t.days.map(d=>{const x=by[d.date];return x?`<div class="wx-d"><small>${esc(fmt(d.date,{weekday:'short',day:'numeric'}))}</small>${I[{sol:'sun',parcial:'partly',nublado:'cloud',chuva:'rain'}[x.cond]||'partly']}<span class="t num">${Math.round(x.max)}°</span><small class="num">mín ${Math.round(x.min)}°${x.chuva!=null?` · ${Math.round(x.chuva)}% chuva`:''}</small>${x.texto?`<small>${esc(x.texto)}</small>`:''}</div>`
+        :`<div class="wx-d wx-empty"><small>${esc(fmt(d.date,{weekday:'short',day:'numeric'}))}</small><span class="dash">—</span><small>sem previsão</small></div>`}).join('');
+      return sec(S_,e,'',`<div class="wx">${cells}</div>
+        <p class="muted" style="font-size:13px;margin:10px 0 0">${n?`Previsão da ${esc(wx.fonte||'Climatempo')}${at?`, atualizada em ${esc(at.toLocaleDateString('pt-BR',{day:'numeric',month:'short'}))} às ${esc(at.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}))}`:''}. `:'Ainda não existe previsão para esses dias. '}${window.claude&&window.claude.local?'Atualiza sempre que você abre o app':'Atualiza sozinha todo dia de manhã'}, conforme a previsão muda; cada dia aparece quando entrar na previsão (uns 5 a 15 dias antes).</p>
+        <p style="margin:8px 0 0"><a class="maplink" href="https://www.google.com/search?q=${encodeURIComponent('previsão do tempo '+(t.city||t.name))}" target="_blank" rel="noopener">Ver previsão no Google</a></p>`)},
+    lembr(e){return sec(S_,e,'',checklist('reminders',t.reminders,'Ex.: levar adaptador, ligar o alarme da casa','reminder'))},
+    lugares(e){return sec(S_,e,!HAS_AI?'':`<button class="btn small ghost" data-act="ideas" ${S.busy.ideas?'disabled':''}>${S.busy.ideas?'<span class="spin"></span> Pensando':I.spark+' Sugerir'}</button>`,
+      `${t.ideas.map((x,i)=>`<div class="idea"><div class="idea-pin">${I.pin}</div><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+        ${inp(`ideas.${i}.name`,x.name,'Nome do lugar',`data-k="ideas" aria-label="Nome do lugar" style="font-weight:700"`)}
+        ${inp(`ideas.${i}.desc`,x.desc,'Descrição ou preço','aria-label="Descrição"')}
+        <div><select data-idea="${i}" aria-label="Levar para um dia"><option value="">+ Colocar no roteiro…</option>${t.days.map((d,j)=>`<option value="${j}">Dia ${j+1} · ${esc(fmtLong(d.date))}</option>`).join('')}</select>
+        ${x.name?`<a class="maplink" style="margin-left:8px" href="${maps(x.name+' '+(t.city||''))}" target="_blank" rel="noopener">${I.pin} Mapa</a>`:''}</div></div>
+        <button class="iconbtn" data-act="del" data-path="ideas.${i}" aria-label="Remover">${I.x}</button></div>`).join('')}
+       <button class="addrow" data-act="add" data-path="ideas" data-tpl="idea">${I.plus} Adicionar lugar</button>`)},
+    regras(e){return sec(S_,e,'',area('rules',t.rules,'Regras do hotel, horários, combinados do grupo…'))},
+    contatos(e){return sec(S_,e,'',`<div class="stack" style="gap:8px">${t.contacts.map((c,i)=>`<div class="kv">${inp(`contacts.${i}.name`,c.name,'Nome',`data-k="contacts"`)}${inp(`contacts.${i}.phone`,c.phone,'Telefone','inputmode="tel"')}<button class="iconbtn" data-act="del" data-path="contacts.${i}" aria-label="Remover">${I.x}</button></div>`).join('')}</div>
+      <button class="addrow" data-act="add" data-path="contacts" data-tpl="contact">${I.plus} Adicionar contato</button>
+      ${hidF(t,'contatos:emerg')?'':`<p class="muted fl" style="font-size:13px;margin:8px 0 0">Emergências: SAMU 192 · Bombeiros 193 · Polícia 190<button class="xs" data-act="hideF" data-key="contatos:emerg" aria-label="Excluir linha de emergências">${I.x}</button></p>`}`)}
+  };
+  return layoutRender(t,S_,map)+rExportCard(t);
+}
+
+/* ================= Dia ================= */
+function rDay(){
+  const t=trip(),i=S.view.day,d=t.days[i];if(!d){S.view.screen='trip';return rTrip()}
+  const P=`days.${i}`,SC='day';
+  const map={
+    agora(e){if(d.date!==today())return '';
+      return `${S.simDate?`<p class="note" style="margin:0;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap">Simulando o modo viagem neste dia. <button class="btn small line" data-act="endSim">Sair da simulação</button></p>`:''}<div data-calc="now" data-sec="agora">${nowCard(t,i)}</div>`},
+    base(e){return sec(SC,e,'',`<div class="stack" style="gap:10px">${fldX(t,'base:title','Título do dia',`${P}.title`,d.title,'Ex.: Praia Central e Roda-Gigante')}
+      ${fldX(t,'base:place','Onde vamos',`${P}.place`,d.place,'Bairro, praia ou cidade')}
+      ${d.place&&!hidF(t,'base:place')?`<a class="maplink" href="${maps(d.place+' '+(t.city||''))}" target="_blank" rel="noopener">${I.pin} Abrir no mapa</a>`:''}
+      <div>${kvList(t,`${P}.cx.base_f`)}</div></div>`)},
+    agenda(e){return sec(SC,e,!HAS_AI?'':`<button class="btn small ghost" data-act="travel" ${S.busy.tr?'disabled':''}>${S.busy.tr?'<span class="spin"></span> Calculando':I.spark+' Deslocamentos'}</button>`,`<div data-calc="timeline">${rTimeline(t,d)}</div>`)},
+    prog(e){return sec(SC,e,`<span class="price num" data-calc="daycost" style="font-weight:700;color:var(--accent)">${brl(dayCost(d))}</span>`,
+     `<div class="stack" style="gap:10px">${d.acts.map((a,j)=>`<div class="act">
+      <div class="full times"><label class="field"><span>Começa</span><input type="time" data-bind="${P}.acts.${j}.time" value="${esc(a.time)}"></label>
+       <label class="field"><span>Termina</span><input type="time" data-bind="${P}.acts.${j}.end" value="${esc(a.end||'')}"></label>
+       <label class="field"><span>Ir até lá (min)</span><span style="display:flex;gap:6px">${inp(`${P}.acts.${j}.travel`,a.travel||'','15','inputmode="numeric" data-type="num" style="width:64px;flex:none"')}<select data-bind="${P}.acts.${j}.mode" aria-label="Como ir"><option value="">Como?</option>${MODES.map(m=>`<option ${m===a.mode?'selected':''}>${m}</option>`).join('')}</select></span></label></div>
+      <label class="field full"><span>Passeio / atividade</span>${inp(`${P}.acts.${j}.name`,a.name,'Ex.: Parque Unipraias',`data-k="acts"`)}</label>
+      <label class="field full"><span>Local</span>${inp(`${P}.acts.${j}.place`,a.place,'Endereço ou nome do lugar')}</label>
+      <label class="field"><span>Valor (R$)</span>${inp(`${P}.acts.${j}.cost`,a.cost||'','0,00','inputmode="decimal" data-type="num"')}</label>
+      <label class="field"><span>Anotação</span>${inp(`${P}.acts.${j}.notes`,a.notes,'Levar o quê, reservar…')}</label>
+      <div class="act-foot"><label class="paid"><input type="checkbox" data-bind="${P}.acts.${j}.paid" ${a.paid?'checked':''}> Já pago</label>
+       <span style="display:flex;gap:6px;align-items:center">${a.place||a.name?`<a class="maplink" href="${maps((a.place||a.name)+' '+(t.city||''))}" target="_blank" rel="noopener">${I.pin} Mapa</a>`:''}<button class="iconbtn" data-act="del" data-path="${P}.acts.${j}" aria-label="Remover atividade">${I.trash}</button></span></div>
+      ${numIn(a.cost)||(a.payers||[]).length?payersUI(`${P}.acts.${j}`,a):''}
+     </div>`).join('')}</div>
+     <button class="addrow" data-act="add" data-path="${P}.acts" data-tpl="act">${I.plus} Adicionar passeio ou atividade</button>`)},
+    planb(e){return `<details class="card planb" data-day="${i}" data-sec="planb" ${S.openB.has(i)?'open':''}>
+      <summary><span><h2>${esc(e.title||'Plano B')}</h2><span class="muted" style="font-size:13.5px">${d.planB.length?`${d.planB.length} opç${d.planB.length>1?'ões':'ão'} para dia de chuva`:'Opcional · toque para abrir'}</span></span><span class="sec-r"><span class="chev">${I.back}</span>${menuBtn(SC,e.id)}</span></summary>
+      <div class="pb-body">
+       <p class="muted" style="margin:0;font-size:13.5px">Ideias para trocar a programação se chover ou algo der errado. Não entram no orçamento até você usar.</p>
+       ${d.planB.map((b,j)=>`<div class="pb">
+         <label class="field full"><span>Opção</span>${inp(`${P}.planB.${j}.name`,b.name,'Ex.: Shopping, cinema, aquário',`data-k="pb"`)}</label>
+         <label class="field"><span>Local</span>${inp(`${P}.planB.${j}.place`,b.place,'Onde fica')}</label>
+         <label class="field"><span>Anotação</span>${inp(`${P}.planB.${j}.notes`,b.notes,'Horário, preço…')}</label>
+         <div class="act-foot"><button class="btn small ghost" data-act="useB" data-path="${P}.planB.${j}">Usar na programação</button>
+          <span style="display:flex;gap:6px;align-items:center">${b.place||b.name?`<a class="maplink" href="${maps((b.place||b.name)+' '+(t.city||''))}" target="_blank" rel="noopener">${I.pin} Mapa</a>`:''}<button class="iconbtn" data-act="del" data-path="${P}.planB.${j}" aria-label="Remover opção">${I.trash}</button></span></div>
+       </div>`).join('')}
+       <button class="addrow" style="margin-top:0" data-act="add" data-path="${P}.planB" data-tpl="pb">${I.plus} Adicionar opção</button>
+       ${!HAS_AI?'':`<button class="btn small line" data-act="suggestB" ${S.busy.pb?'disabled':''} style="align-self:flex-start">${S.busy.pb?'<span class="spin"></span> Pensando':I.spark+' Sugerir opções para chuva'}</button>`}
+      </div></details>`},
+    comer(e){return sec(SC,e,'',`<div class="stack" style="gap:10px">${d.food.map((f,j)=>`<div class="act">
+      <label class="field"><span>Refeição</span><select data-bind="${P}.food.${j}.meal">${MEALS.map(m=>`<option ${m===f.meal?'selected':''}>${m}</option>`).join('')}</select></label>
+      <label class="field"><span>Valor estimado (R$)</span>${inp(`${P}.food.${j}.cost`,f.cost||'','0,00','inputmode="decimal" data-type="num"')}</label>
+      <label class="field full"><span>Restaurante</span>${inp(`${P}.food.${j}.name`,f.name,'Nome do restaurante',`data-k="food"`)}</label>
+      <label class="field full"><span>O que pedir</span>${inp(`${P}.food.${j}.dish`,f.dish,'Prato famoso, indicação de alguém…')}</label>
+      <div class="act-foot"><span style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><label class="paid"><input type="checkbox" data-bind="${P}.food.${j}.went" ${f.went?'checked':''}> Já fomos</label>
+        ${f.went?`<span class="stars" role="group" aria-label="Nota">${[1,2,3,4,5].map(v=>`<button class="${v<=(f.rating||0)?'on':''}" data-act="rate" data-path="${P}.food.${j}.rating" data-v="${v}" aria-label="${v} estrela${v>1?'s':''}">${I.star}</button>`).join('')}</span>`:''}</span>
+       <span style="display:flex;gap:6px;align-items:center">${f.name?`<a class="maplink" href="${maps(f.name+' '+(t.city||''))}" target="_blank" rel="noopener">${I.pin} Mapa</a>`:''}<button class="iconbtn" data-act="del" data-path="${P}.food.${j}" aria-label="Remover restaurante">${I.trash}</button></span></div>
+      ${f.went?`<label class="field full"><span>O que achamos</span>${inp(`${P}.food.${j}.review`,f.review,'Voltaria? O que foi bom ou ruim?')}</label>`:''}
+      ${numIn(f.cost)||(f.payers||[]).length?payersUI(`${P}.food.${j}`,f):''}
+     </div>`).join('')}</div>
+     <button class="addrow" data-act="add" data-path="${P}.food" data-tpl="food">${I.plus} Adicionar restaurante</button>`,{icon:I.fork.replace('<svg','<svg width="20" height="20" style="vertical-align:-3px;color:var(--accent);margin-right:6px"')})},
+    look(e){return sec(SC,e,'',`${area(`${P}.look`,d.look,'Ex.: biquíni azul + saída branca de dia; vestido floral à noite')}<div style="margin-top:10px">${filesGrid(`${P}.lookPhotos`,d.lookPhotos,'Foto do look')}</div>`)},
+    arquivos(e){return sec(SC,e,'',`${filesGrid(`${P}.files`,d.files,'Anexar')}<p class="muted" style="font-size:13px;margin:8px 0 0">Ingressos, vouchers, prints, PDFs.</p>`)},
+    notas(e){return sec(SC,e,'',area(`${P}.notes`,d.notes,'Escreva o que quiser sobre este dia…','notepad'))}
+  };
+  return `<div class="cover"${coverStyle(d.cover)}><div class="wrap">
+    <div class="cover-top"><button class="round" data-act="backTrip" aria-label="Voltar ao roteiro">${I.back}</button>
+    <span style="display:flex;gap:8px">${themeBtn(true)}${i>0?`<button class="round" data-act="openDay" data-i="${i-1}" aria-label="Dia anterior">${I.back}</button>`:''}${i<t.days.length-1?`<button class="round" data-act="openDay" data-i="${i+1}" aria-label="Próximo dia" style="transform:scaleX(-1)">${I.back}</button>`:''}</span></div>
+    <h1>Dia ${i+1}</h1><div class="cover-meta"><span>${esc(fmtLong(d.date))}</span>
+    <button class="chip" style="border:0;color:#fff" data-act="pick" data-target="${P}.cover" data-single="1">${I.img.replace('<svg','<svg width="16" height="16"')} ${d.cover?'Trocar capa':'Pôr capa'}</button>
+    ${d.cover?`<button class="chip" style="border:0;color:#fff" data-act="rmCover" data-path="${P}.cover">Tirar capa</button>`:''}
+    <button class="chip" style="border:0;color:#fff" data-act="delDay">${I.trash.replace('<svg','<svg width="16" height="16"')} Excluir dia</button></div>
+  </div></div>
+  <main class="wrap stack">${layoutRender(t,SC,map,d)}</main>`;
+}
+
+/* ================= Roteiro ================= */
+function rRoteiro(t){
+  const tools=`<div class="bag-actions" style="margin-top:0"><button class="btn small ghost" data-act="addDay" data-where="start">${I.plus} Dia antes</button><button class="btn small ghost" data-act="addDay" data-where="end">${I.plus} Dia depois</button>
+    ${t.skip.length?`<button class="btn small line" data-act="restoreDays">Trazer de volta ${t.skip.length} dia(s) excluído(s)</button>`:''}</div>`;
+  if(!t.days.length)return `<div class="empty">Defina as datas da viagem na engrenagem para montar o roteiro.</div>${tools}`;
+  return `<p class="muted" style="margin:0">Toque em um dia para montar a programação, o look e as anotações.</p>`+t.days.map((d,i)=>{
+    const c=dayCost(d);
+    return `<button class="day-card" data-act="openDay" data-i="${i}"><div class="day-thumb"${coverStyle(d.cover)}><small>Dia</small><b>${i+1}</b></div>
+     <div style="min-width:0"><span class="label">${esc(fmtLong(d.date))}${(()=>{const l=timed(d);return l.length?' · '+esc(l[0].a.time)+(l.length>1?'–'+esc(l[l.length-1].a.end||l[l.length-1].a.time):''):''})()}</span><h3>${esc(d.title||'Dia livre')}</h3>
+     <div class="muted">${d.acts.length?d.acts.filter(a=>a.name).slice(0,3).map(a=>esc((a.time?a.time+' ':'')+a.name)).join(' · ')||`${d.acts.length} item(s)`:'Nada planejado ainda'}</div></div>
+     <span class="price num">${c?brl(c):''}</span></button>`}).join('')+tools;
+}
+
+/* ================= Orçamento ================= */
+function allCats(t,b){return t.cats.concat(Object.keys(b?b.byCat:{}).filter(c=>!t.cats.includes(c)))}
+function rBudgetSummary(t){
+  const b=budgetData(t),lim=numIn(t.budget),pct=lim?Math.min(100,Math.round(b.total/lim*100)):0;
+  const ppl=Math.max(1,(t.people||'').split(/,| e /).filter(s=>s.trim()).length);
+  return `<div class="money-big num">${brl(b.total)}</div>
+   ${lim?`<div class="bar ${b.total>lim?'over':''}" style="margin-top:12px"><i style="width:${pct}%"></i></div><p class="muted" style="margin:6px 0 0;font-size:13.5px">${b.total>lim?`Passou ${brl(b.total-lim)} do limite`:`Sobram ${brl(lim-b.total)} do limite de ${brl(lim)}`}</p>`:''}
+   <div class="kpis"><div class="kpi"><b class="num">${brl(b.paid)}</b><span>Já pago</span></div><div class="kpi"><b class="num">${brl(b.total-b.paid)}</b><span>Falta pagar</span></div><div class="kpi"><b class="num">${brl(b.total/ppl)}</b><span>Por pessoa (${ppl})</span></div></div>
+   ${Object.keys(b.byCat).length?`<div style="margin-top:14px">${allCats(t,b).filter(c=>b.byCat[c]).map(c=>`<div class="row-money"><span>${esc(c)}</span><b class="num">${brl(b.byCat[c])}</b></div>`).join('')}</div>`:''}`;
+}
+function rOrc(t){
+  const SC='orcamento';
+  const map={
+    resumo(e){return sec(SC,e,'',`<div data-calc="budget">${rBudgetSummary(t)}</div>`)},
+    limite(e){return sec(SC,e,'',`<label class="field"><span>Limite da viagem (R$)</span>${inp('budget',t.budget||'','Ex.: 5.000','inputmode="decimal" data-type="num"')}</label>
+      <p class="muted" style="font-size:13px;margin:8px 0 0">Passeios e restaurantes vêm do roteiro de cada dia. Transporte vem da aba Info. Restaurante marcado como "Já fomos" conta como pago.</p>`)},
+    pordia(e){return sec(SC,e,'',t.days.map((d,i)=>{const c=dayCost(d);return c?`<div class="row-money"><span>Dia ${i+1} · ${esc(d.title||fmtLong(d.date))}</span><b class="num">${brl(c)}</b></div>`:''}).join('')||'<p class="muted" style="margin:0">Nenhum passeio com valor ainda.</p>')},
+    outros(e){return sec(SC,e,'',`${t.expenses.map((x,i)=>`<div class="exp">${inp(`expenses.${i}.name`,x.name,'Ex.: diárias do hotel',`data-k="expenses"`)}${inp(`expenses.${i}.cost`,x.cost||'','0,00','inputmode="decimal" data-type="num"')}
+      <div class="sub"><select data-bind="expenses.${i}.cat" aria-label="Categoria">${allCats(t).map(c=>`<option ${c===x.cat?'selected':''}>${esc(c)}</option>`).join('')}</select>
+      <span style="display:flex;gap:6px;align-items:center"><label class="paid"><input type="checkbox" data-bind="expenses.${i}.paid" ${x.paid?'checked':''}> Pago</label><button class="iconbtn" data-act="del" data-path="expenses.${i}" aria-label="Remover">${I.trash}</button></span></div>${payersUI(`expenses.${i}`,x)}</div>`).join('')}
+      <button class="addrow" data-act="add" data-path="expenses" data-tpl="expense">${I.plus} Adicionar gasto</button>`)},
+    pagantes(e){return sec(SC,e,'',`<p class="label" style="margin:0 0 6px">Pagantes</p><div class="stack" style="gap:8px">${t.payers.map((n,i)=>`<div class="kv" style="grid-template-columns:1fr auto;margin:0"><input type="text" class="payer-name" data-old="${esc(n)}" value="${esc(n)}" aria-label="Nome do pagante" data-k="pnames"><button class="iconbtn" data-act="delPayerName" data-i="${i}" aria-label="Excluir pagante">${I.x}</button></div>`).join('')}</div>
+      <button class="addrow" data-act="addPayerName">${I.plus} Adicionar pagante</button>
+      <p class="muted" style="font-size:12.5px;margin:6px 0 0">Os pagantes são cadastrados só aqui. Nos gastos você escolhe entre eles.</p>
+      <p class="label" style="margin:16px 0 4px">Quanto cada um paga</p><div data-calc="payers">${rPayers(t)}</div>`)},
+    cats(e){return sec(SC,e,'',`<div class="stack" style="gap:8px">${t.cats.map((c,i)=>`<div class="kv" style="grid-template-columns:1fr auto">
+      ${PROTECTED_CATS.includes(c)?`<input type="text" value="${esc(c)}" disabled aria-label="Categoria"><span class="muted" style="font-size:12px;width:34px;text-align:center" title="Usada pelo roteiro">fixa</span>`
+       :`<input type="text" class="cat-name" data-old="${esc(c)}" value="${esc(c)}" aria-label="Nome da categoria" data-k="cats"><button class="iconbtn" data-act="delCat" data-i="${i}" aria-label="Excluir categoria">${I.x}</button>`}</div>`).join('')}</div>
+      <button class="addrow" data-act="addCatB">${I.plus} Adicionar categoria</button>
+      <p class="muted" style="font-size:12.5px;margin:8px 0 0">Passeios, Alimentação e Transporte são fixas porque o roteiro e a aba Info somam nelas.</p>`)}
+  };
+  return layoutRender(t,SC,map);
+}
+
+/* ================= Conferir, Mala, Docs, Notas ================= */
+function groups(path,arr,reset){
+  const cats=[...new Set(arr.map(x=>x.cat))];
+  return cats.map(c=>{const items=arr.filter(x=>x.cat===c),d=items.filter(x=>x.done).length;
+   return `<section class="card"><div class="card-h"><input type="text" class="grp-name" data-path="${path}" data-old="${esc(c)}" value="${esc(c)}" aria-label="Nome do grupo" data-k="grp">
+    <span class="sec-r"><span class="muted num">${d}/${items.length}</span>${reset&&d?`<button class="btn small line" data-act="uncheck" data-path="${path}" data-cat="${esc(c)}">Desmarcar</button>`:''}<button class="iconbtn" data-act="delGrp" data-path="${path}" data-cat="${esc(c)}" aria-label="Excluir grupo">${I.trash}</button></span></div>
+    <div class="checks">${arr.map((x,i)=>x.cat!==c?'':`<div class="check ${x.done?'done':''}"><input type="checkbox" data-bind="${path}.${i}.done" ${x.done?'checked':''} aria-label="Feito">${inp(`${path}.${i}.t`,x.t,'Item',`data-k="${path}-${esc(c)}"`)}<button class="iconbtn" data-act="del" data-path="${path}.${i}" aria-label="Remover">${I.x}</button></div>`).join('')}</div>
+    <button class="addrow" data-act="add" data-path="${path}" data-tpl="mala" data-cat="${esc(c)}">${I.plus} Adicionar em ${esc(c)}</button></section>`}).join('')
+   +`<button class="addrow" data-act="addGrp" data-path="${path}">${I.plus} Criar grupo</button>`;
+}
+function rConferir(t){
+  const map={topo(e){const pr=progress(t.saida);return sec('conferir',e,`<span class="muted num">${pr.txt}</span>`,`<div class="bar"><i style="width:${pr.p}%"></i></div>
+   <p class="muted" style="font-size:13.5px;margin:10px 0 0">Passe a lista na porta, na hora de sair. Use "Desmarcar" para conferir de novo na volta.</p>`)+groups('saida',t.saida,true)}};
+  return layoutRender(t,'conferir',map);
+}
+function bagProg(b){const it=b.blocks.flatMap(k=>k.items);return progress(it)}
+function rMala(t){
+  const all=t.bags.flatMap(b=>b.blocks.flatMap(k=>k.items)),pr=progress(all);
+  const head=t.bags.length?`<section class="card"><div class="card-h"><h2>Malas</h2><span class="muted num">${pr.txt} itens guardados</span></div><div class="bar"><i style="width:${pr.p}%"></i></div></section>`:
+    `<section class="card empty" style="padding:28px 16px"><h2 style="font-size:20px;color:var(--ink)">Nenhuma mala ainda</h2><p style="margin:6px 0 0">Crie uma mala para cada pessoa ou bolsa (ex.: Mala da Renata, Mochila, Bolsa de praia). Dentro dela você cria seus blocos.</p></section>`;
+  const bags=t.bags.map((b,i)=>{const bp=bagProg(b),P=`bags.${i}`;
+    return `<section class="card"><div class="card-h" style="margin-bottom:6px">${I.bag.replace('<svg','<svg width="22" height="22" style="color:var(--accent);flex:none"')}
+      <input type="text" class="bag-name" data-bind="${P}.name" value="${esc(b.name)}" placeholder="Nome da mala" aria-label="Nome da mala" data-k="bagname">
+      <span class="muted num" style="flex:none">${bp.txt}</span><button class="iconbtn" data-act="delBag" data-i="${i}" aria-label="Excluir mala">${I.trash}</button></div>
+      ${b.blocks.length?`<div class="bar"><i style="width:${bp.p}%"></i></div>`:''}
+      ${b.blocks.map((k,j)=>{const kp=progress(k.items);return `<div class="block"><div class="block-h">
+        <input type="text" data-bind="${P}.blocks.${j}.name" value="${esc(k.name)}" placeholder="Nome do bloco (ex.: Roupas)" aria-label="Nome do bloco" data-k="blockname">
+        <span class="muted num" style="font-size:13px;flex:none">${kp.txt}</span>
+        ${kp.d?`<button class="btn small line" data-act="uncheckBlock" data-path="${P}.blocks.${j}.items" style="flex:none">Desmarcar</button>`:''}
+        <button class="iconbtn" data-act="delBlock" data-path="${P}.blocks.${j}" aria-label="Excluir bloco">${I.x}</button></div>
+        ${checklist(`${P}.blocks.${j}.items`,k.items,'Item','todo')}</div>`}).join('')}
+      <div class="bag-actions"><button class="btn small ghost" data-act="addBlock" data-i="${i}">${I.plus} Criar bloco</button>
+      ${b.blocks.length?'':`<button class="btn small line" data-act="suggestBag" data-i="${i}">Usar lista sugerida de praia</button>`}</div></section>`}).join('');
+  return `${head}${bags}<button class="newtrip" data-act="addBag">${I.plus} Adicionar mala</button>`+layoutRender(t,'mala',{});
+}
+function rDocs(t){
+  const map={
+    docs(e){return sec('docs',e,`<span class="muted num">${progress(t.docs).txt}</span>`,checklist('docs',t.docs,'Ex.: autorização de viagem de menor','doc'))},
+    arquivos(e){return sec('docs',e,'',`${filesGrid('files',t.files,'Anexar')}<p class="muted" style="font-size:13px;margin:8px 0 0">Reservas, passagens, seguro, fotos dos documentos.</p>`)}
+  };
+  return layoutRender(t,'docs',map);
+}
+function rNotas(t){
+  return layoutRender(t,'notas',{notas(e){return sec('notas',e,'',area('notes',t.notes,'Anote o que vier à cabeça: restaurantes que indicaram, presentes para trazer, senhas do Wi-Fi…','notepad'))}});
+}
+
+/* ================= folhas de seção ================= */
+function secEntry(scope,id){return trip().layout[scope].find(e=>e.id===id)}
+function secMenu(scope,id){
+  const t=trip(),e=secEntry(scope,id);if(!e)return;
+  const title=e.title||defTitle(scope,id)||'Seção';
+  const prefix={hotel:'hotel:',transp:'transp:',base:'base:',contatos:'contatos:'}[id];
+  const hidden=prefix?t.hiddenF.filter(k=>k.startsWith(prefix)):[];
+  S.secCtx={scope,id};
+  openSheet(`<h2>${esc(title)}</h2>
+   <label class="field"><span>Nome da seção</span><input type="text" id="sec-title" value="${esc(title)}"></label>
+   <button class="btn" data-act="secRename">Salvar nome</button>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn line" data-act="secMove" data-dir="-1">Mover para cima</button><button class="btn line" data-act="secMove" data-dir="1">Mover para baixo</button></div>
+   ${hidden.length?`<button class="btn ghost" data-act="showF" data-prefix="${prefix}">Trazer de volta ${hidden.length} campo(s) excluído(s)</button>`:''}
+   ${scope==='day'?`<p class="muted" style="margin:0;font-size:13px">${e.only?'Esta seção existe só neste dia.':'Nome, posição e exclusão valem para todos os dias.'}</p>`:''}
+   <div class="actions"><button class="btn danger" data-act="secDelete" style="margin-right:auto">Excluir seção</button><button class="btn line" data-act="closeSheet">Fechar</button></div>`);
+}
+function addSecSheet(scope){
+  const t=trip(),hidden=t.layout[scope].filter(e=>e.hidden);
+  S.secCtx={scope,type:'lista',only:false};
+  openSheet(`<h2>Nova seção</h2>
+   <label class="field"><span>Nome</span><input type="text" id="ns-title" placeholder="Ex.: Senhas, Presentes, Lista de compras"></label>
+   <div class="field"><span>Tipo</span><div class="typegrid">${SEC_TYPES.map(([k,l,dsc])=>`<button class="typeopt" data-act="nsType" data-type="${k}" aria-pressed="${k==='lista'}"><b>${l}</b><small>${dsc}</small></button>`).join('')}</div></div>
+   ${scope==='day'?`<div class="field"><span>Onde</span><div class="typegrid"><button class="typeopt" data-act="nsOnly" data-only="0" aria-pressed="true"><b>Em todos os dias</b></button><button class="typeopt" data-act="nsOnly" data-only="1" aria-pressed="false"><b>Só neste dia</b></button></div></div>`:''}
+   <div class="actions"><button class="btn line" data-act="closeSheet">Cancelar</button><button class="btn" data-act="nsCreate">Criar seção</button></div>
+   ${hidden.length?`<div><p class="label" style="margin:10px 0 6px">Seções excluídas</p>${hidden.map(e=>`<div class="bk-row"><span>${esc(e.title||defTitle(scope,e.id)||'Seção')}</span><button class="btn small line" style="width:auto" data-act="secRestore" data-id="${e.id}">Trazer de volta</button></div>`).join('')}</div>`:''}`);
+}
+
+/* ================= pagantes ================= */
+function payersUI(path,item){
+  const t=trip(),ps=Array.isArray(item.payers)?item.payers:[];
+  return `<div class="payers full" data-ppath="${path}"><div class="payers-h"><span class="label">Quem paga</span><span class="muted num" data-calc="ph">${phText(item)}</span></div>
+   ${ps.map((p,k)=>`<div class="payer"><select data-bind="${path}.payers.${k}.name" aria-label="Quem paga">${!p.name?'<option value="" selected>Escolha…</option>':''}${p.name&&!t.payers.includes(p.name)?`<option selected>${esc(p.name)}</option>`:''}${t.payers.map(n=>`<option ${n===p.name?'selected':''}>${esc(n)}</option>`).join('')}</select>${inp(`${path}.payers.${k}.value`,p.value||'','0,00','inputmode="decimal" data-type="num" aria-label="Valor"')}<button class="iconbtn" data-act="del" data-path="${path}.payers.${k}" aria-label="Remover pagante">${I.x}</button></div>`).join('')}
+   <div class="payer-actions">${t.payers.length?`<button class="linkbtn" data-act="addPayer" data-path="${path}">${I.plus} Pagante</button>${ps.length>1?`<button class="linkbtn" data-act="splitEq" data-path="${path}">Dividir igual</button>`:''}`
+     :`<span class="muted" style="font-size:13px">Cadastre os pagantes em</span><button class="linkbtn" data-act="goPayers">Orçamento › Quem paga</button>`}</div></div>`;
+}
+function allPayerLists(t){const L=[];t.days.forEach(d=>[...d.acts,...d.food].forEach(x=>{if(Array.isArray(x.payers))L.push(x)}));t.expenses.forEach(x=>{if(Array.isArray(x.payers))L.push(x)});return L}
+function phText(item){const ps=Array.isArray(item.payers)?item.payers:[];if(!ps.length)return '';const tot=numIn(item.cost),sum=ps.reduce((s,p)=>s+numIn(p.value),0),diff=tot-sum;
+  return `${brl(sum)} de ${brl(tot)}${diff>0.009?` · falta ${brl(diff)}`:diff<-0.009?` · passou ${brl(-diff)}`:''}`}
+function costItems(t){
+  const out=[];
+  t.days.forEach((d,i)=>{d.acts.forEach(a=>out.push({name:a.name||'Passeio',where:`Dia ${i+1}`,x:a}));d.food.forEach(f=>out.push({name:f.name||'Refeição',where:`Dia ${i+1}`,x:f}))});
+  t.expenses.forEach(e=>out.push({name:e.name||e.cat||'Gasto',where:e.cat,x:e}));
+  return out.filter(o=>numIn(o.x.cost)>0||(o.x.payers||[]).length);
+}
+function payerTotals(t){
+  const by={};let open=0;
+  costItems(t).forEach(o=>{const ps=o.x.payers||[];let sum=0;
+    ps.forEach(p=>{const n=(p.name||'').trim()||'Sem nome',v=numIn(p.value);sum+=v;(by[n]=by[n]||{total:0,items:[]}).total+=v;by[n].items.push({name:o.name,where:o.where,v})});
+    open+=Math.max(0,numIn(o.x.cost)-sum)});
+  return{by,open};
+}
+function peopleNames(t){const set=new Set();(t.people||'').split(/,| e /).map(s=>s.trim()).filter(Boolean).forEach(n=>set.add(n));costItems(t).forEach(o=>(o.x.payers||[]).forEach(p=>{if(p.name&&p.name.trim())set.add(p.name.trim())}));return[...set]}
+function rPayers(t){
+  const {by,open}=payerTotals(t),names=Object.keys(by).sort((a,b)=>by[b].total-by[a].total);
+  if(!names.length&&!open)return '<p class="muted" style="margin:0">Em cada gasto, toque em "+ Pagante" para anotar quem paga e quanto.</p>';
+  return names.map(n=>`<details class="pay-row"><summary><span>${esc(n)}</span><b class="num">${brl(by[n].total)}</b></summary>${by[n].items.map(x=>`<div class="row-money" style="font-size:13.5px"><span class="muted">${esc(x.name)} · ${esc(x.where)}</span><span class="num">${brl(x.v)}</span></div>`).join('')}</details>`).join('')
+   +(open>0.009?`<div class="row-money"><span class="muted">Sem pagante definido</span><b class="num" style="color:var(--bad)">${brl(open)}</b></div>`:'');
+}
+
+/* ================= documento para enviar ================= */
+const EXP_DEFAULT_OFF=['opt:daynotes'];
+const curExp=()=>{const t=trip();return t&&t.exports.find(x=>x.id===S.view.exp)};
+function docModel(t){
+  const G=[],kvs=a=>(Array.isArray(a)?a:[]).filter(x=>x&&(x.k||x.v));
+  const g=(key,title,children,extra)=>{children=children.filter(Boolean);G.push({key,title,children,extra:extra||[],empty:!children.length})};
+  g('base','Destino e datas',[
+    t.start&&{key:'base:dates',label:'Datas',lines:[{k:'Datas',v:`${fmtLong(t.start)} a ${fmtLong(t.end)} · ${t.days.length} dias`}]},
+    t.origin&&{key:'base:origin',label:'Saindo de',lines:[{k:'Saindo de',v:t.origin}]},
+    t.people&&{key:'base:people',label:'Quem vai',lines:[{k:'Quem vai',v:t.people}]}]);
+  g('hotel','Hospedagem',[['name','Hospedagem'],['address','Endereço'],['checkin','Check-in'],['checkout','Check-out'],['code','Código da reserva'],['phone','Telefone'],['notes','Observações']]
+    .filter(([f])=>t.hotel[f]&&!hidF(t,'hotel:'+f)).map(([f,l])=>({key:'hotel:'+f,label:l,lines:[{k:l,v:t.hotel[f]}]}))
+    .concat(kvs(t.cx.hotel_f).map(x=>({key:'hotel:x:'+x.k,label:x.k||'Campo',lines:[{k:x.k,v:x.v}]}))));
+  g('transp','Transporte',[['kind','Transporte'],['go','Ida'],['back','Volta'],['code','Localizador / reserva']]
+    .filter(([f])=>t.transport[f]&&!hidF(t,'transp:'+f)).map(([f,l])=>({key:'transp:'+f,label:l,lines:[{k:l,v:t.transport[f]}]}))
+    .concat(kvs(t.cx.transp_f).map(x=>({key:'transp:x:'+x.k,label:x.k||'Campo',lines:[{k:x.k,v:x.v}]}))));
+  g('roteiro','Roteiro',t.days.map((d,i)=>({key:'day:'+d.date,label:`Dia ${i+1} · ${fmtLong(d.date)}${d.title?' · '+d.title:''}`,lines:on=>{
+      const L=[{h:`Dia ${i+1} · ${fmtLong(d.date)}${d.title?' — '+d.title:''}`}];
+      if(d.place)L.push({k:'Onde',v:d.place});
+      const acts=d.acts.filter(a=>a.name).slice().sort((a,b)=>(toMin(a.time)??9999)-(toMin(b.time)??9999));
+      acts.forEach(a=>L.push({li:`${a.time?a.time+(a.end?'–'+a.end:'')+'  ':''}${a.name}${a.place&&a.place!==a.name?' ('+a.place+')':''}${on('opt:prices')&&numIn(a.cost)?' · '+brl(numIn(a.cost)):''}`}));
+      if(on('opt:food'))d.food.filter(f=>f.name).forEach(f=>L.push({li:`${f.meal}: ${f.name}${f.dish?' — '+f.dish:''}${on('opt:prices')&&numIn(f.cost)?' · '+brl(numIn(f.cost)):''}`}));
+      if(on('opt:planb')&&d.planB.some(b=>b.name))L.push({li:'Se chover: '+d.planB.filter(b=>b.name).map(b=>b.name).join(', ')});
+      if(on('opt:daynotes')&&d.notes)L.push({p:d.notes});
+      if(L.length===1)L.push({li:'Dia livre'});
+      return L}})),
+    [{key:'opt:food',label:'Mostrar restaurantes'},{key:'opt:planb',label:'Mostrar plano B'},{key:'opt:prices',label:'Mostrar valores'},{key:'opt:daynotes',label:'Mostrar anotações dos dias'}]);
+  g('lugares','Lugares para visitar',t.ideas.filter(x=>x.name).map(x=>({key:'lug:'+x.name,label:x.name,lines:[{li:x.name+(x.desc?' — '+x.desc:'')}]})));
+  {const b=budgetData(t),ppl=Math.max(1,(t.people||'').split(/,| e /).filter(s=>s.trim()).length),items=costItems(t);
+   g('budget','Orçamento',b.total||items.length?[{key:'budget:total',label:'Total previsto',lines:[{k:'Total previsto',v:brl(b.total)},{k:'Já pago',v:brl(b.paid)},{k:'Falta pagar',v:brl(b.total-b.paid)}]},
+     numIn(t.budget)&&{key:'budget:limit',label:'Limite de gastos',lines:[{k:'Limite de gastos',v:brl(numIn(t.budget))}]},
+     {key:'budget:pp',label:'Valor por pessoa',lines:[{k:`Por pessoa (${ppl})`,v:brl(b.total/ppl)}]},
+     {key:'budget:cats',label:'Total por categoria',lines:[{sub:'Por categoria'}].concat(allCats(t,b).filter(c=>b.byCat[c]).map(c=>({k:c,v:brl(b.byCat[c])})))},
+     items.length&&{key:'budget:list',label:'Lista de todos os gastos',lines:[{sub:'Todos os gastos'}].concat(items.map(o=>({k:`${o.name} (${o.where})`,v:brl(numIn(o.x.cost))+(o.x.paid||o.x.went?' · pago':'')})))}]:[]);
+   const pt=payerTotals(t);
+   g('payers','Quem paga o quê',Object.keys(pt.by).map(n=>({key:'payer:'+n,label:`${n} · ${brl(pt.by[n].total)}`,lines:[{h:`${n} — ${brl(pt.by[n].total)}`}].concat(pt.by[n].items.map(x=>({k:`${x.name} (${x.where})`,v:brl(x.v)})))})));}
+  g('saida','Não esquecer',t.saida.filter(x=>x.t).map(x=>({key:`saida:${x.cat}|${x.t}`,label:x.t,group:x.cat,lines:[{li:x.t,check:1}]})));
+  g('docs','Documentos para levar',t.docs.filter(x=>x.t).map(x=>({key:'doc:'+x.t,label:x.t,lines:[{li:x.t,check:1}]})));
+  g('bags','Malas',t.bags.filter(b=>b.blocks.some(k=>k.items.some(i=>i.t))).map(b=>({key:'bag:'+b.name,label:b.name||'Mala',lines:[{h:b.name||'Mala'}].concat(b.blocks.filter(k=>k.items.some(i=>i.t)).map(k=>({k:k.name||'Itens',v:k.items.filter(i=>i.t).map(i=>i.t).join(', ')})))})));
+  g('lembr','Lembretes',t.reminders.filter(x=>x.t).map(x=>({key:'lembr:'+x.t,label:x.t,lines:[{li:x.t}]})));
+  g('rules','Regras e combinados',[t.rules&&{key:'rules:all',label:'Texto das regras',lines:[{p:t.rules}]}]);
+  g('contatos','Contatos',t.contacts.filter(c=>c.name||c.phone).map(c=>({key:'cont:'+c.name+c.phone,label:`${c.name} ${c.phone}`.trim(),lines:[{k:c.name||'Contato',v:c.phone}]}))
+    .concat([{key:'cont:emerg',label:'Telefones de emergência',lines:[{k:'Emergências',v:'SAMU 192 · Bombeiros 193 · Polícia 190'}]}]));
+  t.layout.info.filter(e=>e.type&&!e.hidden).forEach(e=>{const v=t.cx[e.id];
+    if(e.type==='lista')g('cx:'+e.id,e.title,(v||[]).filter(x=>x.t).map(x=>({key:`cx:${e.id}:${x.t}`,label:x.t,lines:[{li:x.t,check:1}]})));
+    else if(e.type==='texto')g('cx:'+e.id,e.title,[v&&{key:`cx:${e.id}:all`,label:'Texto',lines:[{p:v}]}]);
+    else if(e.type==='campos')g('cx:'+e.id,e.title,kvs(v).map(x=>({key:`cx:${e.id}:${x.k}`,label:x.k||'Campo',lines:[{k:x.k,v:x.v}]})));
+  });
+  return G;
+}
+function docBlocks(t,cfg){
+  const on=k=>!cfg.off.includes(k),out=[];
+  docModel(t).forEach(g=>{if(!on(g.key))return;const ch=g.children.filter(c=>on(c.key));if(!ch.length)return;
+    const lines=[];let grp=null;ch.forEach(c=>{if(c.group&&c.group!==grp){grp=c.group;lines.push({sub:grp})}(typeof c.lines==='function'?c.lines(on):c.lines).forEach(l=>lines.push(l))});
+    out.push({title:g.title,lines})});
+  return out;
+}
+function docHTML(t,cfg){
+  const title=cfg.title||`Viagem para ${t.name}`;
+  return `<div class="docv"><div class="dv-top"><div class="dv-eyebrow">Roteiro de viagem</div><h1>${esc(title)}</h1>
+    ${cfg.to?`<p class="dv-to">Preparado para <b>${esc(cfg.to)}</b></p>`:''}${t.start?`<p class="dv-dates">${esc(fmtLong(t.start))} a ${esc(fmtLong(t.end))}</p>`:''}</div>
+    ${cfg.msg?`<div class="dv-msg">${esc(cfg.msg).replace(/\n/g,'<br>')}</div>`:''}
+    ${docBlocks(t,cfg).map(s=>`<section class="dv-sec"><h2>${esc(s.title)}</h2>${s.lines.map(l=>l.sub?`<h3>${esc(l.sub)}</h3>`:l.h?`<h4>${esc(l.h)}</h4>`:l.k!=null?`<div class="dv-kv"><span>${esc(l.k)}</span><b>${esc(l.v)}</b></div>`:l.li?`<div class="dv-li"><i>${l.check?'☐':'•'}</i><span>${esc(l.li)}</span></div>`:l.p?`<p>${esc(l.p).replace(/\n/g,'<br>')}</p>`:'').join('')}</section>`).join('')||'<p class="dv-empty">Nada selecionado ainda. Marque o que vai no documento.</p>'}
+    <p class="dv-foot">Feito com Nossas Viagens · ${new Date().toLocaleDateString('pt-BR')}</p></div>`;
+}
+function docText(t,cfg){
+  const L=[`*${cfg.title||'Viagem para '+t.name}*`];
+  if(cfg.to)L.push(`Para: ${cfg.to}`);if(t.start)L.push(`${fmtLong(t.start)} a ${fmtLong(t.end)}`);if(cfg.msg)L.push('',cfg.msg);
+  docBlocks(t,cfg).forEach(s=>{L.push('',`*${s.title.toUpperCase()}*`);s.lines.forEach(l=>{if(l.sub)L.push(`_${l.sub}_`);else if(l.h)L.push(`*${l.h}*`);else if(l.k!=null)L.push(`${l.k}: ${l.v}`);else if(l.li)L.push(`${l.check?'☐':'•'} ${l.li}`);else if(l.p)L.push(l.p)})});
+  return L.join('\n');
+}
+function rExportCard(t){
+  return `<section class="card"><div class="card-h"><h2>${I.doc.replace('<svg','<svg width="20" height="20" style="vertical-align:-3px;color:var(--accent);margin-right:6px"')}Exportar documento</h2></div>
+   <p class="muted" style="margin:0 0 10px">Monte um documento da viagem para enviar a alguém, escolhendo item por item o que a pessoa vai ver.</p>
+   ${t.exports.map(x=>`<div class="bk-row"><span><b>${esc(x.to||'Sem destinatário')}</b> <span class="muted" style="font-size:13px">${esc(x.title||'')}</span></span><span style="display:flex;gap:6px"><button class="btn small ghost" style="width:auto" data-act="openExport" data-id="${x.id}">Abrir</button><button class="iconbtn" data-act="delExport" data-id="${x.id}" aria-label="Excluir documento">${I.trash}</button></span></div>`).join('')}
+   <button class="btn" data-act="newExport" style="margin-top:10px;width:100%">${I.plus} Novo documento</button></section>`;
+}
+function rExport(){
+  const t=trip(),cfg=curExp();if(!cfg){S.view.screen='trip';S.view.tab='info';return rTrip()}
+  const xi=t.exports.indexOf(cfg),on=k=>!cfg.off.includes(k),P=`exports.${xi}`;
+  const opts=docModel(t).map(g=>{const n=g.children.length,k=g.children.filter(c=>on(c.key)).length;
+    if(g.empty)return `<div class="xg off"><div class="xg-h"><label><input type="checkbox" disabled> <b>${esc(g.title)}</b></label><span class="muted" style="font-size:13px">vazio no app</span></div></div>`;
+    return `<div class="xg ${on(g.key)?'':'off'}"><div class="xg-h"><label><input type="checkbox" class="xk" data-key="${esc(g.key)}" ${on(g.key)?'checked':''}> <b>${esc(g.title)}</b></label><span class="muted num" style="font-size:13px">${on(g.key)?`${k} de ${n}`:'não vai'}</span></div>
+     ${on(g.key)?`<details class="xdet" data-g="${esc(g.key)}" ${S.xOpen&&S.xOpen.has(g.key)?'open':''}><summary class="linkbtn">Escolher itens</summary><div class="xg-c">
+       ${g.extra.map(o=>`<label class="xopt"><input type="checkbox" class="xk" data-key="${esc(o.key)}" ${on(o.key)?'checked':''}> ${esc(o.label)}</label>`).join('')}
+       ${g.children.map(c=>`<label><input type="checkbox" class="xk" data-key="${esc(c.key)}" ${on(c.key)?'checked':''}> ${c.group?`<span class="muted">${esc(c.group)} ·</span> `:''}${esc(c.label)}</label>`).join('')}
+       <span style="display:flex;gap:12px;margin-top:4px"><button class="linkbtn" data-act="xAll" data-g="${esc(g.key)}">Marcar todos</button><button class="linkbtn" data-act="xNone" data-g="${esc(g.key)}">Desmarcar todos</button></span></div></details>`:''}</div>`}).join('');
+  return `<div class="wrap" style="padding-block:16px 0;display:flex;justify-content:space-between;gap:8px"><button class="themebtn" data-act="backInfo">${I.back} Voltar</button>${themeBtn(false)}</div>
+  <main class="wrap stack">
+   <header><p class="label">Exportar documento</p><h1 style="font-size:30px">Documento para ${esc(cfg.to||'…')}</h1></header>
+   <section class="card stack" style="gap:10px">
+    ${fld('Para quem vai',`${P}.to`,cfg.to,'Ex.: Vó Maria')}
+    ${fld('Título do documento',`${P}.title`,cfg.title,`Viagem para ${t.name}`)}
+    <label class="field"><span>Recado (aparece no topo)</span>${area(`${P}.msg`,cfg.msg,'Ex.: Vó, aqui está tudo da nossa viagem. Qualquer coisa, liga!')}</label></section>
+   <section class="card"><div class="card-h"><h2>O que a pessoa vai ver</h2></div><div class="xgs">${opts}</div></section>
+   <section class="card"><div class="card-h"><h2>Prévia</h2></div><div id="doc-preview" class="doc-wrap">${docHTML(t,cfg)}</div></section>
+   <section class="card stack" style="gap:8px"><button class="btn" data-act="xPdf" ${S.busy.pdf?'disabled':''}>${S.busy.pdf?'<span class="spin"></span> Gerando PDF':I.doc+' Baixar PDF'}</button>
+    <button class="btn ghost" data-act="xText">Copiar texto (WhatsApp)</button>
+    <p class="muted" style="font-size:13px;margin:0">Baixe o PDF e mande pelo WhatsApp ou e-mail. Ou copie o texto e cole direto na conversa.</p></section>
+  </main>`;
+}
+function refreshPreview(){const el=$('#doc-preview');if(el&&S.view.screen==='export'&&curExp())el.innerHTML=docHTML(trip(),curExp())}
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>rej(new Error('load'));document.head.appendChild(s)})}
+async function makePdf(){
+  const t=trip(),cfg=curExp(),name=`viagem-${(t.name||'roteiro').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-')}${cfg.to?'-'+cfg.to.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-'):''}.pdf`;
+  S.busy.pdf=true;render();
+  try{
+    if(!window.html2pdf)await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js');
+    const box=document.createElement('div');box.className='pdf-src';box.innerHTML=docHTML(t,cfg);document.body.appendChild(box);
+    const blob=await window.html2pdf().set({margin:[12,12,14,12],image:{type:'jpeg',quality:.95},html2canvas:{scale:2,backgroundColor:'#ffffff'},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy'],avoid:['.dv-kv','.dv-li','h2','h3','h4']}}).from(box.firstElementChild).outputPdf('blob');
+    box.remove();
+    let dl=null;try{dl=window.claude?await window.claude.use('downloads'):null}catch(e){}
+    if(!dl){toast('O download não está disponível aqui. Use "Copiar texto".');}
+    else{try{await dl.save({filename:name,data:blob});toast('PDF salvo')}catch(e){toast(e&&e.code==='declined'?'Download cancelado':'Não consegui salvar o PDF ('+(e&&e.code||'erro')+').')}}
+  }catch(e){toast('Não consegui gerar o PDF agora. Use "Copiar texto".')}
+  S.busy.pdf=false;render();
+}
+
+/* ================= folhas ================= */
+function openSheet(html){$('#sheet').innerHTML=`<div class="sheet-bg" data-act="closeSheetBg"><div class="sheet" role="dialog" aria-modal="true">${html}</div></div>`;const f=$('#sheet input');if(f)f.focus()}
+function closeSheet(){$('#sheet').innerHTML=''}
+function confirmSheet(msg,yes,onYes){S.onYes=onYes;openSheet(`<h2>${esc(msg)}</h2><div class="actions"><button class="btn line" data-act="closeSheet">Cancelar</button><button class="btn danger" data-act="yes">${esc(yes)}</button></div>`)}
+function tripForm(t,isNew){
+  return `<h2>${isNew?'Nova viagem':'Editar viagem'}</h2>
+  <label class="field"><span>Destino</span><input type="text" id="f-name" value="${esc(t.name)}" placeholder="Ex.: Balneário Camboriú, SC"></label>
+  <label class="field"><span>Origem (de onde vamos sair)</span><input type="text" id="f-origin" value="${esc(t.origin||'')}" placeholder="Ex.: São Paulo, SP ou o endereço de casa"></label>
+
+  <div class="grid2" style="grid-template-columns:1fr 1fr"><label class="field"><span>Ida</span><input type="date" id="f-start" value="${esc(t.start)}"></label><label class="field"><span>Volta</span><input type="date" id="f-end" value="${esc(t.end)}"></label></div>
+  <label class="field"><span>Quem vai</span><input type="text" id="f-people" value="${esc(t.people)}" placeholder="Ex.: Renat, Renata, Henrique"></label>
+  ${isNew?'':`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn small ghost" data-act="pick" data-target="cover" data-single="1">${I.img} ${t.cover?'Trocar capa':'Pôr foto de capa'}</button>${t.cover?`<button class="btn small line" data-act="rmCover" data-path="cover">Tirar capa</button>`:''}</div>`}
+  ${isNew?'':`<div class="field"><span>Abas que aparecem</span><div class="tabchk">${TABS.map(([k,l])=>`<label><input type="checkbox" data-tabchk="${k}" ${t.tabsOff&&t.tabsOff.includes(k)?'':'checked'}> ${l}</label>`).join('')}</div></div>`}
+  <p id="f-err" class="note" hidden></p>
+  <div class="actions">${isNew?'':`<button class="btn line" data-act="delTrip" style="margin-right:auto;color:var(--bad)">Excluir viagem</button>`}<button class="btn line" data-act="closeSheet">Cancelar</button><button class="btn" data-act="${isNew?'createTrip':'saveTrip'}">${isNew?'Criar viagem':'Salvar'}</button></div>`;
+}
+function readForm(){
+  const g=id=>$('#'+id).value.trim();
+  const o={name:g('f-name'),origin:g('f-origin'),start:g('f-start'),end:g('f-end'),people:g('f-people')};o.city=o.name;
+  const err=!o.name?'Dê um nome ao destino.':!o.start||!o.end?'Preencha as datas de ida e volta.':o.end<o.start?'A volta precisa ser depois da ida.':range(o.start,o.end).length>=60?'O roteiro aceita até 60 dias.':'';
+  const tb=[...document.querySelectorAll('[data-tabchk]')];if(tb.length){o.tabsOff=tb.filter(x=>!x.checked).map(x=>x.dataset.tabchk);if(o.tabsOff.length===TABS.length&&!err){const e=$('#f-err');e.textContent='Deixe pelo menos uma aba.';e.hidden=false;return null}}
+  if(err){const e=$('#f-err');e.textContent=err;e.hidden=false;return null}
+  return o;
+}
+
+/* ================= IA (clima e sugestões) ================= */
+async function getSample(){if(S.sample===undefined||S.sample===null){try{S.sample=window.claude?await window.claude.use('sample'):null}catch(e){S.sample=null}}return S.sample}
+async function askWeather(){
+  const t=trip(),s=await getSample();if(!s){toast('O clima por IA não está disponível aqui. Use o link da previsão.');return}
+  S.busy.wx=true;render();
+  const dates=t.days.map(d=>d.date);
+  try{
+    const r=await s.json(`Você é um assistente de viagem no Brasil. Destino: ${t.city||t.name}. Datas: ${dates.join(', ')}.
+Dê o CLIMA TÍPICO esperado para cada data com base em médias históricas da região nessa época do ano (não é previsão). Responda SOMENTE com JSON neste formato:
+{"resumo":"1 ou 2 frases em português sobre o clima típico nesses dias","dias":[{"data":"YYYY-MM-DD","cond":"sol|parcial|nublado|chuva","min":número em °C,"max":número em °C,"chuva":probabilidade de chuva em %}],"dicas":["até 3 dicas curtas do que levar"]}
+Inclua exatamente uma entrada por data, na ordem.`,{modelTier:'quick'});
+    if(r&&Array.isArray(r.dias)){t.weather={resumo:r.resumo,dias:r.dias.slice(0,60),dicas:(r.dicas||[]).slice(0,3),at:new Date().toISOString()};save()}
+    else toast('Não veio uma resposta válida. Tente de novo.');
+  }catch(e){toast(e&&e.code==='rate_limited'?'Muitos pedidos seguidos. Espere um pouco.':e&&e.code==='not_granted'?'A permissão para usar a IA foi negada. Libere em Permissões do app.':'Não consegui buscar o clima agora ('+(e&&e.code||'erro')+').')}
+  S.busy.wx=false;softRender();
+}
+async function askIdeas(){
+  const t=trip(),s=await getSample();if(!s){toast('Sugestões por IA não estão disponíveis aqui.');return}
+  S.busy.ideas=true;render();
+  try{
+    const have=t.ideas.map(x=>x.name).join(', ');
+    const r=await s.json(`Sugira 8 passeios, atrações ou lugares imperdíveis em ${t.city||t.name} para uma viagem de ${t.days.length} dias em ${fmt(t.start,{month:'long'})}${t.people?', grupo: '+t.people:''}. Evite repetir: ${have||'nada'}.
+Responda SOMENTE com JSON: [{"nome":"nome do lugar","descricao":"o que é, até 14 palavras","custo":"faixa por pessoa em R$ ou 'gratuito'"}]`,{modelTier:'quick'});
+    if(Array.isArray(r)){const names=new Set(t.ideas.map(x=>x.name.toLowerCase()));r.forEach(x=>{if(x&&x.nome&&!names.has(String(x.nome).toLowerCase()))t.ideas.push({name:String(x.nome),desc:String(x.descricao||''),cost:String(x.custo||'')})});save()}
+    else toast('Não veio uma resposta válida. Tente de novo.');
+  }catch(e){toast(e&&e.code==='rate_limited'?'Muitos pedidos seguidos. Espere um pouco.':'Não consegui buscar sugestões agora.')}
+  S.busy.ideas=false;softRender();
+}
+
+/* ================= upload ================= */
+function compress(file){
+  return new Promise(res=>{
+    if(!/^image\/(jpeg|png|webp|heic|heif)/.test(file.type)){res(file);return}
+    const img=new Image(),u=URL.createObjectURL(file);
+    img.onload=()=>{const m=1600,sc=Math.min(1,m/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);c.toBlob(b=>{URL.revokeObjectURL(u);res(b?new File([b],file.name.replace(/\.\w+$/,'')+'.jpg',{type:'image/jpeg'}):file)},'image/jpeg',.82)};
+    img.onerror=()=>{URL.revokeObjectURL(u);res(file)};img.src=u;
+  });
+}
+$('#filepick').addEventListener('change',async e=>{
+  const files=[...e.target.files];const target=e.target.dataset.target,single=e.target.dataset.single==='1';e.target.value='';
+  if(!files.length)return;
+  if(!S.assets){toast('Envio de arquivos indisponível aqui. Abra a página no Claude com sua conta.');return}
+  const tid=S.view.tripId;S.busy.up=target;softRender();
+  for(const f of (single?files.slice(0,1):files)){
+    try{const b=await compress(f);const r=await S.assets.upload(b);const item={id:r.id,url:r.url,name:f.name,type:r.contentType||f.type};
+      const t=S.trips[tid];if(!t)break;
+      if(single)setPath(t,target,item);else getPath(t,target).push(item);save(tid);
+    }catch(err){toast(err&&err.code==='too_large'?`${f.name} é grande demais (máx. 20 MB).`:err&&err.code==='unsupported_type'?`Tipo de arquivo não aceito: ${f.name}`:`Não consegui enviar ${f.name}.`)}
+  }
+  S.busy.up=null;closeSheetIfCover(target);softRender();
+});
+function closeSheetIfCover(target){if(target==='cover')closeSheet()}
+
+/* ================= plano B por IA ================= */
+async function askPlanB(){
+  const t=trip(),i=S.view.day,d=t.days[i],s=await getSample();if(!s){toast('Sugestões por IA não estão disponíveis aqui.');return}
+  S.busy.pb=true;S.openB.add(i);render();
+  try{const r=await s.json(`Sugira 5 programas para um dia de chuva em ${t.city||t.name} (lugares cobertos ou passeios que funcionam com chuva)${d.place?`, de preferência perto de ${d.place}`:''}. Evite: ${d.planB.map(x=>x.name).join(', ')||'nada'}.
+Responda SOMENTE com JSON: [{"nome":"nome do lugar ou programa","local":"bairro ou endereço curto","nota":"até 10 palavras: o que é ou preço"}]`,{modelTier:'quick'});
+    if(Array.isArray(r)){r.forEach(x=>{if(x&&x.nome)d.planB.push({name:String(x.nome),place:String(x.local||''),notes:String(x.nota||'')})});save()}else toast('Não veio uma resposta válida. Tente de novo.')}
+  catch(e){toast(e&&e.code==='rate_limited'?'Muitos pedidos seguidos. Espere um pouco.':'Não consegui sugerir agora.')}
+  S.busy.pb=false;softRender();
+}
+
+/* ================= backup ================= */
+const BK_APP='nossas-viagens';
+function bkPayload(){const trips={};Object.values(S.trips).forEach(t=>trips[t.id]=clean(t));return{app:BK_APP,version:1,at:new Date().toISOString(),trips}}
+function restoreTrips(trips){let n=0;Object.keys(trips||{}).forEach(id=>{const t=trips[id];if(!t||typeof t!=='object')return;S.trips[id]=normalize(Object.assign({},t,{id}));save(id);n++});return n}
+async function snapshot(manual){
+  if(S.mode!=='db')return false;const day=iso(new Date());
+  try{await S.db.collection('backups').doc(day).set({at:new Date().toISOString(),count:Object.keys(S.trips).length,data:JSON.stringify(bkPayload())});S.lastSnap=day;
+    if(manual){const all=await S.db.collection('backups').orderBy('at','desc').get();all.docs.slice(15).forEach(d=>S.db.collection('backups').doc(d.id).delete().catch(()=>{}))}
+    return true}catch(e){return false}
+}
+function autoSnap(){if(S.mode==='db'&&S.lastSnap!==iso(new Date())&&Object.keys(S.trips).length){S.lastSnap=iso(new Date());setTimeout(()=>snapshot(false),3000)}}
+async function bkList(){
+  const box=$('#bk-list');if(!box)return;
+  if(S.mode!=='db'){box.innerHTML='<p class="muted" style="margin:0">Cópias automáticas só funcionam com a conta conectada. Use o arquivo de backup.</p>';return}
+  try{const snap=await S.db.collection('backups').orderBy('at','desc').limit(15).get();
+    box.innerHTML=snap.empty?'<p class="muted" style="margin:0">Nenhuma cópia ainda. O app salva uma por dia, sozinho, quando você mexe em algo.</p>':
+      snap.docs.map(d=>{const x=d.data(),dt=new Date(x.at);return `<div class="bk-row"><span><b>${esc(dt.toLocaleDateString('pt-BR',{day:'numeric',month:'short',year:'numeric'}))}</b> <span class="muted">às ${esc(dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}))} · ${x.count||0} viagem(ns)</span></span><button class="btn small line" style="width:auto" data-act="bkRestore" data-id="${esc(d.id)}">Restaurar</button></div>`}).join('')}
+  catch(e){box.innerHTML='<p class="muted" style="margin:0">Não consegui carregar as cópias agora.</p>'}
+}
+$('#bkpick').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{importText(await f.text())}catch(err){toast('Não consegui ler esse arquivo.')}});
+function importText(txt){
+  let o;try{o=JSON.parse(txt)}catch(e){toast('Esse texto não é um backup válido.');return}
+  if(!o||o.app!==BK_APP||!o.trips){toast('Esse arquivo não é um backup do Nossas Viagens.');return}
+  const n=Object.keys(o.trips).length,dt=o.at?new Date(o.at).toLocaleDateString('pt-BR'):'';
+  confirmSheet(`Restaurar ${n} viagem(ns) do backup${dt?' de '+dt:''}? Viagens iguais serão substituídas pela versão do backup.`,'Restaurar',async()=>{if(o.files&&window.__localAssets)await window.__localAssets.importAll(o.files);const k=restoreTrips(o.trips);closeSheet();S.view={screen:'home'};render();toast(`${k} viagem(ns) restaurada(s)`)});
+}
+
+/* ================= ações ================= */
+const A={
+  home(){S.simDate=null;S.view={screen:'home'};render();scrollTo(0,0)},
+  open(el){S.view={screen:'trip',tripId:el.dataset.id,tab:'info'};render();scrollTo(0,0)},
+  tab(el){S.view.tab=el.dataset.tab;render();const tb=$('.tabs');if(tb&&tb.getBoundingClientRect().top<0)tb.scrollIntoView()},
+  openDay(el){S.view.screen='day';S.view.day=+el.dataset.i;render();scrollTo(0,0)},
+  backTrip(){S.view.screen='trip';S.view.tab='roteiro';render();scrollTo(0,0)},
+  newTrip(){openSheet(tripForm({name:'',city:'',start:'',end:'',people:''},true))},
+  createTrip(){const o=readForm();if(!o)return;const id='t'+Date.now().toString(36)+uid();S.trips[id]=normalize(Object.assign(o,{id,createdAt:new Date().toISOString()}));
+    save(id);closeSheet();S.view={screen:'trip',tripId:id,tab:'info'};render();scrollTo(0,0);toast('Viagem criada')},
+  editTrip(){openSheet(tripForm(trip(),false))},
+  saveTrip(){const o=readForm();if(!o)return;const t=trip();Object.assign(t,o);S.trips[t.id]=normalize(t);save();closeSheet();render();toast('Viagem atualizada')},
+  delTrip(){confirmSheet('Excluir esta viagem e tudo que tem nela?','Excluir',()=>{const id=S.view.tripId;delete S.trips[id];S.dirty.delete(id);clearTimeout(S.timers[id]);
+    if(S.mode==='db')S.db.collection('trips').doc(id).delete().catch(()=>toast('Não consegui excluir agora.'));else lsSave();S.view={screen:'home'};closeSheet();render();toast('Viagem excluída')})},
+  add(el){const arr=getPath(trip(),el.dataset.path);arr.push(TPL[el.dataset.tpl](el));save();
+    S.focusLast=el.dataset.tpl==='act'?'[data-k="acts"]':el.dataset.tpl==='pb'?'[data-k="pb"]':el.dataset.tpl==='food'?'[data-k="food"]':el.dataset.tpl==='mala'?`[data-k="${el.dataset.path}-${CSS.escape(el.dataset.cat)}"]`:`[data-k="${el.dataset.path}"]`;render()},
+  del(el){const p=el.dataset.path.split('.');const i=+p.pop();const arr=getPath(trip(),p.join('.')),it=arr[i];
+    const lbl=it&&typeof it==='object'?(it.t||it.name||it.k||''):'';
+    confirmSheet(lbl?`Excluir "${lbl}"?`:'Excluir este item?','Excluir',()=>{arr.splice(i,1);save();closeSheet();render()})},
+  pick(el){const fp=$('#filepick');fp.dataset.target=el.dataset.target;fp.dataset.single=el.dataset.single||'';
+    fp.accept=el.dataset.single?'image/*':(el.dataset.target.endsWith('lookPhotos')?'image/*':'image/*,application/pdf,.pdf,.doc,.docx,.txt');fp.multiple=!el.dataset.single;fp.click()},
+  rmFile(el){confirmSheet('Remover este arquivo?','Remover',()=>{const p=el.dataset.path.split('.');const i=+p.pop();const arr=getPath(trip(),p.join('.'));const f=arr.splice(i,1)[0];save();
+    if(f&&f.id&&S.assets)S.assets.delete(f.id).catch(()=>{});closeSheet();render()})},
+  rmCover(el){const path=el.dataset.path;confirmSheet('Tirar a foto de capa?','Tirar',()=>{const c=getPath(trip(),path);setPath(trip(),path,null);save();if(c&&c.id&&S.assets)S.assets.delete(c.id).catch(()=>{});closeSheet();render()})},
+  addCat(){const v=$('#newcat').value.trim();if(!v)return;trip().mala.push({cat:v,t:'',done:false});save();S.focusLast=`[data-k="mala-${CSS.escape(v)}"]`;render()},
+  theme(){const order=['auto','light','dark'];const m=order[(order.indexOf(getTheme())+1)%3];applyTheme(m);render();toast('Tema: '+THEME_LBL[m])},
+  rate(el){const t=trip();const cur=getPath(t,el.dataset.path)||0,v=+el.dataset.v;setPath(t,el.dataset.path,cur===v?0:v);save();render()},
+  uncheck(el){trip()[el.dataset.path].forEach(x=>{if(x.cat===el.dataset.cat)x.done=false});save();render()},
+  sim(){const t=trip();S.simDate=t.days[0].date;S.view.screen='day';S.view.day=0;render();scrollTo(0,0)},
+  endSim(){S.simDate=null;S.view.screen='trip';S.view.tab='info';render();scrollTo(0,0)},
+  addBag(){openSheet(`<h2>Nova mala</h2><label class="field"><span>Nome da mala</span><input type="text" id="bag-name" placeholder="Ex.: Mala da Renata, Mochila, Necessaire"></label>
+    <div class="actions"><button class="btn line" data-act="closeSheet">Cancelar</button><button class="btn" data-act="createBag">Criar mala</button></div>`)},
+  createBag(){const t=trip(),v=$('#bag-name').value.trim()||('Mala '+(t.bags.length+1));t.bags.push({name:v,blocks:[]});save();closeSheet();render();
+    const c=document.querySelectorAll('.bag-name');if(c.length)c[c.length-1].scrollIntoView({block:'center'});toast('Mala criada. Agora crie os blocos.')},
+  delBag(el){const b=trip().bags[+el.dataset.i];confirmSheet(`Excluir "${b.name||'esta mala'}" e tudo dentro dela?`,'Excluir',()=>{trip().bags.splice(+el.dataset.i,1);save();closeSheet();render()})},
+  addBlock(el){const b=trip().bags[+el.dataset.i];b.blocks.push({name:'',items:[]});save();S.focusLast='[data-k="blockname"]';
+    render();const els=document.querySelectorAll('[data-k="blockname"]');let n=0;trip().bags.forEach((x,i)=>{if(i<=+el.dataset.i)n+=x.blocks.length});const f=els[n-1];if(f)f.focus();S.focusLast=null},
+  delBlock(el){const p=el.dataset.path.split('.');const j=+p.pop();const arr=getPath(trip(),p.join('.'));const k=arr[j];
+    const go=()=>{arr.splice(j,1);save();closeSheet();render()};confirmSheet(k.items.length?`Excluir o bloco "${k.name||'sem nome'}" e seus ${k.items.length} itens?`:`Excluir o bloco "${k.name||'sem nome'}"?`,'Excluir',go)},
+  uncheckBlock(el){getPath(trip(),el.dataset.path).forEach(x=>x.done=false);save();render()},
+  suggestBag(el){trip().bags[+el.dataset.i].blocks=MALA.map(([c,items])=>({name:c,items:items.map(x=>({t:x,done:false}))}));save();render()},
+  suggestB(){askPlanB()},
+  addPayer(el){const t=trip(),it=getPath(t,el.dataset.path);if(!Array.isArray(it.payers))it.payers=[];
+    const used=it.payers.map(p=>p.name),name=t.payers.find(n=>!used.includes(n))||'',rest=Math.max(0,numIn(it.cost)-it.payers.reduce((s,p)=>s+numIn(p.value),0));
+    it.payers.push({name,value:Math.round(rest*100)/100});save();render()},
+  goPayers(){S.view.screen='trip';S.view.tab='orcamento';render();const el=document.querySelector('[data-sec="pagantes"]');if(el)el.scrollIntoView({block:'start'})},
+  addPayerName(){const t=trip();let n='Pagante',k=2;while(t.payers.includes(n))n='Pagante '+k++;t.payers.push(n);save();render();const f=[...document.querySelectorAll('[data-k="pnames"]')].pop();if(f){f.focus();f.select()}},
+  delPayerName(el){const t=trip(),n=t.payers[+el.dataset.i];confirmSheet(`Excluir "${n}" dos pagantes? Os valores que ${n} paga nos gastos também saem.`,'Excluir',()=>{t.payers.splice(+el.dataset.i,1);allPayerLists(t).forEach(x=>{x.payers=x.payers.filter(p=>p.name!==n)});save();closeSheet();render()})},
+  splitEq(el){const it=getPath(trip(),el.dataset.path),n=it.payers.length,tot=numIn(it.cost);if(!tot){toast('Coloque o valor do gasto primeiro.');return}
+    const each=Math.floor(tot/n*100)/100;it.payers.forEach((p,k)=>p.value=k===n-1?Math.round((tot-each*(n-1))*100)/100:each);save();render();toast('Dividido igual')},
+  newExport(){const t=trip(),x={id:'x'+uid(),to:'',title:'',msg:'',off:EXP_DEFAULT_OFF.slice()};t.exports.push(x);save();S.view.screen='export';S.view.exp=x.id;S.xOpen=new Set();render();scrollTo(0,0);
+    const f=document.querySelector('[data-bind$=".to"]');if(f)f.focus()},
+  openExport(el){S.view.screen='export';S.view.exp=el.dataset.id;S.xOpen=new Set();render();scrollTo(0,0)},
+  delExport(el){const t=trip(),x=t.exports.find(e=>e.id===el.dataset.id);confirmSheet(`Excluir o documento${x&&x.to?' para '+x.to:''}?`,'Excluir',()=>{t.exports=t.exports.filter(e=>e.id!==el.dataset.id);save();closeSheet();render()})},
+  backInfo(){S.view.screen='trip';S.view.tab='info';render();scrollTo(0,0)},
+  xAll(el){const cfg=curExp(),g=docModel(trip()).find(x=>x.key===el.dataset.g);const keys=g.children.map(c=>c.key);cfg.off=cfg.off.filter(k=>!keys.includes(k));save();render()},
+  xNone(el){const cfg=curExp(),g=docModel(trip()).find(x=>x.key===el.dataset.g);g.children.forEach(c=>{if(!cfg.off.includes(c.key))cfg.off.push(c.key)});save();render()},
+  xPdf(){makePdf()},
+  xText(){const txt=docText(trip(),curExp());openSheet(`<h2>Texto para enviar</h2><p class="muted" style="margin:0">Copie e cole na conversa do WhatsApp.</p><textarea id="bk-out" readonly style="min-height:240px;font-size:13px">${esc(txt)}</textarea>
+    <div class="actions"><button class="btn line" data-act="closeSheet">Fechar</button><button class="btn" data-act="bkCopy">Copiar</button></div>`)},
+  secMenu(el){secMenu(el.dataset.scope,el.dataset.id)},
+  secRename(){const {scope,id}=S.secCtx,e=secEntry(scope,id),v=$('#sec-title').value.trim();e.title=v===defTitle(scope,id)?'':v;save();closeSheet();render();toast('Nome salvo')},
+  secMove(el){const {scope,id}=S.secCtx,L=trip().layout[scope],i=L.findIndex(e=>e.id===id),dir=+el.dataset.dir;let j=i+dir;while(j>=0&&j<L.length&&L[j].hidden)j+=dir;
+    if(j<0||j>=L.length){toast(dir<0?'Já é a primeira.':'Já é a última.');return}[L[i],L[j]]=[L[j],L[i]];save();render();toast(dir<0?'Subiu':'Desceu')},
+  secDelete(){const {scope,id}=S.secCtx,t=trip(),L=t.layout[scope],e=L.find(x=>x.id===id);
+    if(!e.type){confirmSheet(`Excluir a seção "${e.title||defTitle(scope,id)}"? Dá para trazer de volta depois em + Adicionar seção.`,'Excluir',()=>{e.hidden=true;save();closeSheet();render();toast('Seção excluída')});return}
+    confirmSheet(`Excluir a seção "${e.title||'Seção'}" e o que tem nela?`,'Excluir',()=>{t.layout[scope]=L.filter(x=>x.id!==id);if(scope==='day')t.days.forEach(d=>{delete d.cx[id]});else delete t.cx[id];save();closeSheet();render()})},
+  secRestore(el){const {scope}=S.secCtx,e=secEntry(scope,el.dataset.id);e.hidden=false;save();closeSheet();render();toast('Seção de volta')},
+  addSec(el){addSecSheet(el.dataset.scope)},
+  nsType(el){S.secCtx.type=el.dataset.type;el.parentNode.querySelectorAll('.typeopt').forEach(b=>b.setAttribute('aria-pressed',b===el))},
+  nsOnly(el){S.secCtx.only=el.dataset.only==='1';el.parentNode.querySelectorAll('.typeopt').forEach(b=>b.setAttribute('aria-pressed',b===el))},
+  nsCreate(){const {scope,type,only}=S.secCtx,t=trip(),title=$('#ns-title').value.trim()||SEC_TYPES.find(x=>x[0]===type)[1];
+    t.layout[scope].push({id:'c'+uid(),title,hidden:false,type,only:scope==='day'&&only?t.days[S.view.day].date:null});save();closeSheet();render();toast('Seção criada no fim da página')},
+  hideF(el){const t=trip(),key=el.dataset.key;confirmSheet('Excluir este campo? Dá para trazer de volta pelo menu ⋯ da seção.','Excluir',()=>{if(!t.hiddenF.includes(key))t.hiddenF.push(key);save();closeSheet();render()})},
+  showF(el){const t=trip();t.hiddenF=t.hiddenF.filter(k=>!k.startsWith(el.dataset.prefix));save();closeSheet();render()},
+  clearWx(){trip().weather=null;save();render()},
+  addDay(el){const t=trip();if(!t.start||!t.end){toast('Defina as datas na engrenagem primeiro.');return}
+    const sh=(s,n)=>{const d=parseD(s);return iso(new Date(d.getFullYear(),d.getMonth(),d.getDate()+n))};
+    if(range(t.start,t.end).length>=60){toast('O roteiro aceita até 60 dias.');return}
+    if(el.dataset.where==='start')t.start=sh(t.start,-1);else t.end=sh(t.end,1);S.trips[t.id]=normalize(t);save();render();toast('Dia adicionado')},
+  delDay(){const t=trip(),i=S.view.day,d=t.days[i];
+    confirmSheet(`Excluir o Dia ${i+1} (${fmtLong(d.date)}) e tudo o que tem nele?`,'Excluir dia',()=>{
+      if(t.days.length===1){closeSheet();toast('A viagem precisa ter pelo menos um dia.');return}
+      if(d.date===t.days[0].date)t.start=t.days[1].date;else if(d.date===t.days[t.days.length-1].date)t.end=t.days[t.days.length-2].date;else t.skip.push(d.date);
+      S.trips[t.id]=normalize(t);save();closeSheet();S.view.screen='trip';S.view.tab='roteiro';render();scrollTo(0,0);toast('Dia excluído')})},
+  restoreDays(){const t=trip();t.skip=[];S.trips[t.id]=normalize(t);save();render()},
+  delCat(el){const t=trip(),c=t.cats[+el.dataset.i],to=t.cats.includes('Outros')&&c!=='Outros'?'Outros':t.cats.find(x=>x!==c);
+    confirmSheet(`Excluir a categoria "${c}"? Os gastos dela vão para "${to}".`,'Excluir',()=>{t.expenses.forEach(x=>{if(x.cat===c)x.cat=to});t.cats.splice(+el.dataset.i,1);save();closeSheet();render()})},
+  addCatB(){const t=trip();let n='Nova categoria',k=2;while(t.cats.includes(n))n='Nova categoria '+k++;t.cats.push(n);save();S.focusLast='[data-k="cats"]';render()},
+  delGrp(el){const t=trip(),p=el.dataset.path,c=el.dataset.cat;confirmSheet(`Excluir o grupo "${c}" e seus itens?`,'Excluir',()=>{t[p]=t[p].filter(x=>x.cat!==c);save();closeSheet();render()})},
+  addGrp(el){const t=trip(),p=el.dataset.path;let n='Novo grupo',k=2;while(t[p].some(x=>x.cat===n))n='Novo grupo '+k++;t[p].push({cat:n,t:'',done:false});save();S.focusLast='.grp-name';render();const g=document.querySelectorAll('.grp-name');if(g.length)g[g.length-1].select()},
+  pushLocal(){const loc=lsLoad(),out={};Object.keys(loc).forEach(id=>{if(!S.trips[id])out[id]=loc[id]});const n=restoreTrips(out);try{localStorage.removeItem(LS)}catch(e){}render();toast(`${n} viagem(ns) enviada(s) para a conta`)},
+  useB(el){const t=trip(),b=getPath(t,el.dataset.path),d=t.days[S.view.day];d.acts.push({time:'',end:'',name:b.name,place:b.place,cost:0,paid:false,notes:b.notes,travel:0,mode:''});save();render();toast('Colocado na programação. Ajuste o horário lá em cima.')},
+  backup(){openSheet(`<h2>Backup</h2>
+    <p class="note" style="margin:0">As viagens, fotos e arquivos ficam salvos só neste aparelho. Baixe o arquivo de backup de vez em quando e use-o para passar tudo para outro celular ou computador (as fotos vão junto).</p>
+    <button class="btn" data-act="bkDownload">${I.doc} Baixar arquivo de backup</button>
+    <button class="btn ghost" data-act="bkSnap">Salvar uma cópia agora</button>
+    <button class="btn line" data-act="bkImport">${I.up} Restaurar de um arquivo</button>
+    <details><summary class="muted" style="cursor:pointer;font-size:14px">Ou colar o texto do backup</summary><textarea id="bk-text" placeholder="Cole aqui o texto do backup" style="margin-top:8px"></textarea><button class="btn small line" style="width:auto;margin-top:8px" data-act="bkPaste">Restaurar do texto</button></details>
+    <div><p class="label" style="margin:8px 0 4px">Cópias salvas aqui</p><div id="bk-list"><span class="spin"></span></div></div>
+    <p class="muted" style="font-size:12.5px;margin:0">Fotos e PDFs ficam guardados neste app; o backup leva os textos, listas e valores e os links dos anexos. Em um app novo, pode ser preciso anexar os arquivos de novo.</p>
+    <div class="actions"><button class="btn line" data-act="closeSheet">Fechar</button></div>`);bkList()},
+  async bkDownload(){const pl=bkPayload();if(window.__localAssets){toast('Preparando backup…');pl.files=await window.__localAssets.exportFor(pl.trips)}const json=JSON.stringify(pl),name=`nossas-viagens-backup-${iso(new Date())}.json`;
+    let dl=null;try{dl=window.claude?await window.claude.use('downloads'):null}catch(e){}
+    if(dl){try{await dl.save({filename:name,data:new Blob([json],{type:'application/json'})});toast('Backup salvo');return}catch(e){if(e&&e.code==='declined'){toast('Download cancelado');return}}}
+    openSheet(`<h2>Copie o backup</h2><p class="muted" style="margin:0">O download não está disponível aqui. Copie o texto abaixo e guarde (num e-mail para você, por exemplo).</p><textarea id="bk-out" readonly style="min-height:200px;font-size:12px">${esc(json)}</textarea>
+      <div class="actions"><button class="btn line" data-act="closeSheet">Fechar</button><button class="btn" data-act="bkCopy">Copiar</button></div>`)},
+  bkCopy(){const ta=$('#bk-out');navigator.clipboard.writeText(ta.value).then(()=>toast('Copiado'),()=>{ta.select();toast('Texto selecionado. Use Copiar do celular.')})},
+  async bkSnap(){if(S.mode!=='db'){toast('Sem conta conectada. Use o arquivo de backup.');return}toast('Salvando cópia…');const ok=await snapshot(true);toast(ok?'Cópia salva':'Não consegui salvar a cópia agora.');bkList()},
+  bkImport(){$('#bkpick').click()},
+  bkPaste(){const v=$('#bk-text').value.trim();if(v)importText(v)},
+  async bkRestore(el){try{const d=await S.db.collection('backups').doc(el.dataset.id).get();if(!d.exists){toast('Essa cópia não existe mais.');return}importText(d.data().data)}catch(e){toast('Não consegui abrir essa cópia.')}},
+  weather(){askWeather()}, ideas(){askIdeas()}, travel(){askTravel()},
+  closeSheet(){closeSheet()}, closeSheetBg(el,e){if(e.target===el)closeSheet()},
+  yes(){const f=S.onYes;S.onYes=null;if(f)f()}
+};
+document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;const fn=A[el.dataset.act];if(fn){if(el.dataset.act!=='closeSheetBg')e.preventDefault();fn(el,e)}});
+document.addEventListener('input',e=>{const el=e.target;if(!el.dataset.bind||el.type==='checkbox'||el.tagName==='SELECT')return;const t=trip();if(!t)return;
+  setPath(t,el.dataset.bind,el.dataset.type==='num'?numIn(el.value):el.value);save();
+  const b=document.querySelector('[data-calc="budget"]');if(b&&el.dataset.type==='num')b.innerHTML=rBudgetSummary(t);
+  const dc=document.querySelector('[data-calc="daycost"]');if(dc&&S.view.screen==='day')dc.textContent=brl(dayCost(t.days[S.view.day]));if(S.view.screen==='day')refreshTimeline();if(S.view.screen==='export')refreshPreview();
+  const pp=el.closest&&el.closest('[data-ppath]');if(pp){const ph=pp.querySelector('[data-calc="ph"]');if(ph)ph.textContent=phText(getPath(t,pp.dataset.ppath))}
+  const py=document.querySelector('[data-calc="payers"]');if(py&&(pp||el.dataset.type==='num'))py.innerHTML=rPayers(t);const tt=document.querySelector('[data-calc="txtot"]');if(tt)tt.textContent=brl(t.expenses.filter(e=>e.cat==='Transporte').reduce((s,e)=>s+numIn(e.cost),0))});
+document.addEventListener('change',e=>{const el=e.target;const t=trip();if(!t)return;
+  if(el.classList.contains('xk')){const cfg=curExp();if(!cfg)return;const k=el.dataset.key;cfg.off=cfg.off.filter(x=>x!==k);if(!el.checked)cfg.off.push(k);save();render();return}
+  if(el.classList.contains('grp-name')){const o=el.dataset.old,v=el.value.trim();if(v&&v!==o){t[el.dataset.path].forEach(x=>{if(x.cat===o)x.cat=v});save()}render();return}
+  if(el.classList.contains('payer-name')){const o=el.dataset.old,v=el.value.trim();if(v&&v!==o&&!t.payers.includes(v)){t.payers[t.payers.indexOf(o)]=v;allPayerLists(t).forEach(x=>x.payers.forEach(p=>{if(p.name===o)p.name=v}));save()}else if(v!==o&&t.payers.includes(v))toast('Já existe um pagante com esse nome.');render();return}
+  if(el.classList.contains('cat-name')){const o=el.dataset.old,v=el.value.trim();if(v&&v!==o&&!t.cats.includes(v)){t.cats[t.cats.indexOf(o)]=v;t.expenses.forEach(x=>{if(x.cat===o)x.cat=v});save()}else if(t.cats.includes(v)&&v!==o)toast('Já existe uma categoria com esse nome.');render();return}
+  if(el.dataset.idea!=null&&el.value!==''){const x=t.ideas[+el.dataset.idea],d=t.days[+el.value];d.acts.push({time:'',end:'',name:x.name,place:x.name,cost:0,paid:false,notes:x.desc||'',travel:0,mode:''});save();toast(`Colocado no Dia ${+el.value+1}`);render();return}
+  if(!el.dataset.bind)return;
+  if(el.type==='checkbox'){setPath(t,el.dataset.bind,el.checked);save();render()}
+  else if(el.tagName==='SELECT'){setPath(t,el.dataset.bind,el.value);save();{const py=document.querySelector('[data-calc="payers"]');if(py)py.innerHTML=rPayers(t)}refreshTimeline();const b=document.querySelector('[data-calc="budget"]');if(b)b.innerHTML=rBudgetSummary(t)}});
+document.addEventListener('toggle',e=>{const el=e.target;if(el.matches&&el.matches('details.xdet')){S.xOpen=S.xOpen||new Set();el.open?S.xOpen.add(el.dataset.g):S.xOpen.delete(el.dataset.g);return}if(el.matches&&el.matches('details.planb')){const i=+el.dataset.day;el.open?S.openB.add(i):S.openB.delete(i)}},true);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#sheet').innerHTML)closeSheet();
+  if(e.key==='Enter'&&e.target.dataset&&e.target.dataset.k&&e.target.closest('.check')){e.preventDefault();const add=e.target.closest('.card').querySelector('.addrow');if(add)add.click()}});
+window.addEventListener('pagehide',()=>{Object.keys(S.timers).forEach(id=>{if(S.dirty.has(id)){clearTimeout(S.timers[id]);flush(id)}})});
+
+/* ================= início ================= */
+render();
+(async()=>{
+  const c=window.claude;
+  const [db,assets]=c?await Promise.all([c.use('db').catch(()=>null),c.use('assets').catch(()=>null)]):[null,null];
+  S.assets=assets;
+  if(db){
+    S.db=db;
+    const load=d=>{try{return normalize(Object.assign(JSON.parse(JSON.stringify(d.data()||{})),{id:d.id}))}catch(e){console.error('viagem com erro',d.id,e);return null}};
+    const apply=snap=>{
+      const seen=new Set();
+      snap.docs.forEach(d=>{seen.add(d.id);if(S.dirty.has(d.id)||S.saving.has(d.id))return;const t=load(d);if(t)S.trips[d.id]=t});
+      Object.keys(S.trips).forEach(id=>{if(!seen.has(id)&&!S.dirty.has(id)&&!S.saving.has(id))delete S.trips[id]});
+      S.mode='db';autoOpen();softRender();if(!S.wxDone){S.wxDone=true;setTimeout(liveWeather,500)}
+    };
+    setTimeout(()=>{if(S.mode==='loading')db.collection('trips').get().then(apply).catch(e=>{S.dbErr=e&&e.code||'sem resposta';fallback()})},6000);
+    db.collection('trips').onSnapshot(snap=>{try{apply(snap)}catch(e){console.error(e);S.mode='db';softRender()}},err=>{S.dbErr=err&&err.code||'desconhecido';
+      db.collection('trips').get().then(apply)
+        .catch(()=>{if(S.mode==='loading')fallback();toast('Não consegui ler as viagens salvas ('+S.dbErr+').')})});
+  }else fallback();
+})();
+const WMO=c=>c<=1?['sol',c?'Poucas nuvens':'Céu limpo']:c===2?['parcial','Sol entre nuvens']:c===3?['nublado','Nublado']:c<=48?['nublado','Neblina']:c<=57?['chuva','Garoa']:c<=67?['chuva','Chuva']:c<=77?['nublado','Neve']:c<=82?['chuva','Pancadas de chuva']:['chuva','Trovoadas'];
+async function liveWeather(){
+  if(!(window.claude&&window.claude.local)||!navigator.onLine)return;
+  for(const t of Object.values(S.trips)){
+    try{if(!t.start||!t.days.length)continue;const a=daysTo(t.start),b=daysTo(t.end);if(b<0||a>16)continue;
+      const w=t.weather;if(w&&w.fonte==='Open-Meteo'&&w.at&&Date.now()-new Date(w.at)<3*3600e3)continue;
+      const q=(t.city||t.name).split(',')[0].trim();
+      if(!t.geo||t.geo.q!==q){const g=await (await fetch('https://geocoding-api.open-meteo.com/v1/search?count=5&language=pt&format=json&name='+encodeURIComponent(q))).json();
+        const r=(g.results||[]).find(x=>x.country_code==='BR')||(g.results||[])[0];if(!r)continue;t.geo={q,lat:r.latitude,lon:r.longitude}}
+      const f=await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${t.geo.lat}&longitude=${t.geo.lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=16`)).json();
+      const D=f.daily||{},dates=new Set(t.days.map(d=>d.date)),dias=[];
+      (D.time||[]).forEach((dt,i)=>{if(!dates.has(dt))return;const [cond,texto]=WMO(D.weather_code[i]);dias.push({data:dt,cond,texto,min:D.temperature_2m_min[i],max:D.temperature_2m_max[i],chuva:D.precipitation_probability_max?D.precipitation_probability_max[i]:null})});
+      t.weather={fonte:'Open-Meteo',at:new Date().toISOString(),dias};save(t.id);softRender();
+    }catch(e){console.warn('previsão',e)}
+  }
+}
+function fallback(){S.mode='local';const d=lsLoad();Object.keys(d).forEach(id=>S.trips[id]=normalize(Object.assign(d[id],{id})));autoOpen();render()}
+function autoOpen(){if(S.autoDone)return;S.autoDone=true;if(S.view.screen!=='home')return;
+  for(const t of Object.values(S.trips)){const i=tripToday(t);if(i>=0){S.view={screen:'day',tripId:t.id,day:i,tab:'roteiro'};return}}}
+})();
+</script>
+
+</body>
+</html>
